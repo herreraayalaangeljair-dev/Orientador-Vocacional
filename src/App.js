@@ -4,6 +4,8 @@ import Login from './Componentes/Login';
 import Registro from './Componentes/Registro';
 import Preguntas from './Componentes/Preguntas';
 import Resultado from './Componentes/Resultado';
+import Carreras from './Componentes/Carreras';
+import Universidades from './Componentes/Universidades';
 import { Route, Routes } from 'react-router';
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/preguntas" element={<Preguntas />} />
           <Route path="/resultado" element={<Resultado />} />
+          <Route path="/carreras" element={<Carreras />} />
+          <Route path="/universidades" element={<Universidades />} />
         </Routes>
       </div>
     </div>
