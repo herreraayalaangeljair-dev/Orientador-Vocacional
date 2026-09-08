@@ -1,7 +1,10 @@
-
 import Bienvenida from './Componentes/Bienvenida';
 import './index.css';
-
+import Login from './Componentes/Login';
+import Registro from './Componentes/Registro';
+import Preguntas from './Componentes/Preguntas';
+import Resultado from './Componentes/Resultado';
+import { Route, Routes } from 'react-router';
 function App() {
   return (
     <div className="phone-wrapper">
@@ -18,7 +21,13 @@ function App() {
         {/* Overlay semitransparente para que el texto sea legible */}
         <div className="bg-overlay" />
         {/* Contenido */}
-        <Bienvenida />
+        <Routes>
+          <Route path="/" element={<Bienvenida />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+          <Route path="/preguntas" element={<Preguntas />} />
+          <Route path="/resultado" element={<Resultado />} />
+        </Routes>
       </div>
     </div>
   );
