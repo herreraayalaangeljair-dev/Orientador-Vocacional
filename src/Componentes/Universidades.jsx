@@ -63,7 +63,10 @@ const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
     const normTipo = normalizeStr(u.tipo);
     const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
     const cardColor = u.color || defaultColor;
-    const emoji = u.emoji || (normTipo === 'publica' ? '🏛️' : '🚀');
+
+    // Detectar si u.logo, u.imagen o u.emoji contiene un link de Cloudinary/http
+    const logoUrl = u.logo || u.imagen || (u.emoji && u.emoji.startsWith('http') ? u.emoji : null);
+    const emojiFallback = normTipo === 'publica' ? '🏛️' : '🚀';
 
     const uniTitle = u.id;
     const uniSubTitle = u.nombre;
@@ -76,7 +79,13 @@ const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
         >
             {/* Cabecera de la tarjeta */}
             <CardTop>
-                <EmojiBox $color={cardColor}>{emoji}</EmojiBox>
+                <EmojiBox $color={cardColor}>
+                    {logoUrl ? (
+                        <UniLogo src={logoUrl} alt={uniTitle} />
+                    ) : (
+                        u.emoji && !u.emoji.startsWith('http') ? u.emoji : emojiFallback
+                    )}
+                </EmojiBox>
                 <CardInfo>
                     <UniName>{uniTitle}</UniName>
                     {uniSubTitle && <UniFullName>{uniSubTitle}</UniFullName>}
@@ -481,6 +490,16 @@ const EmojiBox = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.3rem;
+  overflow: hidden;
+`;
+
+const UniLogo = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  padding: 2px;
+  box-sizing: border-box;
 `;
 
 const CardInfo = styled.div`
