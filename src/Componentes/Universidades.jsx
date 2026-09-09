@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-//para sacar elementos de la base de datos
 import { collection, onSnapshot } from "firebase/firestore";
 import db from "../firebaseConfig/firebase";
 import styled, { keyframes } from 'styled-components';
@@ -13,9 +12,10 @@ import {
     faUsers,
     faGlobe,
     faFilter,
+    faAward,
 } from '@fortawesome/free-solid-svg-icons';
 
-// ── Datos de universidades ────────────────────────────────────────────────────
+// ── Datos / Filtros ───────────────────────────────────────────────────────────
 
 const TIPOS = [
     { id: 'todas', label: 'Todas' },
@@ -32,7 +32,133 @@ const normalizeStr = (str) =>
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
 
-// ── Componente ────────────────────────────────────────────────────────────────
+// ── Componente Tarjeta Individual con Subcolección 'becas' ────────────────────
+
+const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
+    const [becas, setBecas] = useState([]);
+    const [loadingBecas, setLoadingBecas] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setLoadingBecas(true);
+            const unsubscribe = onSnapshot(
+                collection(db, 'universidades', u.id, 'Beca'),
+                (snapshot) => {
+                    const arregloBecas = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        nombre: doc.data().nombre || doc.data().Nombre || doc.id
+                    }));
+                    setBecas(arregloBecas);
+                    setLoadingBecas(false);
+                },
+                (error) => {
+                    console.error(`Error al obtener becas de ${u.id}:`, error);
+                    setLoadingBecas(false);
+                }
+            );
+            return () => unsubscribe();
+        }
+    }, [isOpen, u.id]);
+
+    const normTipo = normalizeStr(u.tipo);
+    const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
+    const cardColor = u.color || defaultColor;
+    const emoji = u.emoji || (normTipo === 'publica' ? '🏛️' : '🚀');
+
+    const uniTitle = u.id;
+    const uniSubTitle = u.nombre;
+
+    return (
+        <UniCard
+            $color={cardColor}
+            $open={isOpen}
+            onClick={() => toggleExpand(u.id)}
+        >
+            {/* Cabecera de la tarjeta */}
+            <CardTop>
+                <EmojiBox $color={cardColor}>{emoji}</EmojiBox>
+                <CardInfo>
+                    <UniName>{uniTitle}</UniName>
+                    {uniSubTitle && <UniFullName>{uniSubTitle}</UniFullName>}
+
+                    {/* Sitio oficial */}
+                    {u.sitio && (
+                        <SiteLink
+                            href={u.sitio.startsWith('http') ? u.sitio : `https://${u.sitio}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <FontAwesomeIcon icon={faGlobe} />
+                            Sitio oficial
+                        </SiteLink>
+                    )}
+                </CardInfo>
+                {u.ranking && (
+                    <RankBadge $color={cardColor}>
+                        <FontAwesomeIcon icon={faStar} />
+                        <span>#{u.ranking}</span>
+                    </RankBadge>
+                )}
+            </CardTop>
+
+            {/* Expandible */}
+            {isOpen && (
+                <CardExpanded>
+                    <Divider $color={cardColor} />
+                    {u.descripcion && <Description>{u.descripcion}</Description>}
+
+                    {Array.isArray(u.areas) && u.areas.length > 0 && (
+                        <>
+                            <AreasTitle>Áreas destacadas:</AreasTitle>
+                            <AreasChips>
+                                {u.areas.map((a, i) => (
+                                    <AreaChip key={i} $color={cardColor}>{a}</AreaChip>
+                                ))}
+                            </AreasChips>
+                        </>
+                    )}
+
+                    {/* Subcolección Beca */}
+                    <BecasContainer>
+                        <BecasTitle>
+                            <FontAwesomeIcon icon={faAward} />
+
+                            {/*Sitio de becas */}
+                            {u.sitioBecas && (
+                                <SiteLink
+                                    href={u.sitioBecas.startsWith('http') ? u.sitioBecas : `https://${u.sitioBecas}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <span>Becas disponibles ({becas.length})</span>
+                                </SiteLink>
+                            )}
+
+                        </BecasTitle>
+                        {loadingBecas ? (
+                            <BecasLoadingText>Cargando becas...</BecasLoadingText>
+                        ) : becas.length === 0 ? (
+                            <BecasEmptyText>Sin becas registradas actualmente.</BecasEmptyText>
+                        ) : (
+                            <BecasList>
+                                {becas.map((b) => (
+                                    <BecaItem key={b.id} $color={cardColor}>
+                                        <BecaName>{b.nombre}</BecaName>
+                                    </BecaItem>
+                                ))}
+                            </BecasList>
+                        )}
+                    </BecasContainer>
+
+                </CardExpanded>
+            )}
+        </UniCard>
+    );
+};
+
+// ── Componente Principal ──────────────────────────────────────────────────────
 
 const Universidades = () => {
     const navigate = useNavigate();
@@ -133,86 +259,14 @@ const Universidades = () => {
                         <p>No se encontraron universidades con ese criterio.</p>
                     </EmptyState>
                 ) : (
-                    filtered.map((u) => {
-                        const isOpen = expandedId === u.id;
-                        const normTipo = normalizeStr(u.tipo);
-                        const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
-                        const cardColor = u.color || defaultColor;
-                        const emoji = u.emoji || (normTipo === 'publica' ? '🏛️' : '🚀');
-
-                        // Si u.nombre es diferente a u.id, usamos u.id de título y u.nombre de nombre completo
-                        const uniTitle = u.id;
-                        const uniSubTitle = u.nombre;
-
-                        return (
-                            <UniCard
-                                key={u.id}
-                                $color={cardColor}
-                                $open={isOpen}
-                                onClick={() => toggleExpand(u.id)}
-                            >
-                                {/* Cabecera de la tarjeta */}
-                                <CardTop>
-                                    <EmojiBox $color={cardColor}>{emoji}</EmojiBox>
-                                    <CardInfo>
-                                        <UniName>{uniTitle}</UniName>
-                                        {uniSubTitle && <UniFullName>{uniSubTitle}</UniFullName>}
-                                        {(u.ubicacion || u.alumnos) && (
-                                            <MetaRow>
-                                                {u.ubicacion && (
-                                                    <MetaItem>
-                                                        <FontAwesomeIcon icon={faLocationDot} />
-                                                        {u.ubicacion}
-                                                    </MetaItem>
-                                                )}
-                                                {u.alumnos && (
-                                                    <MetaItem>
-                                                        <FontAwesomeIcon icon={faUsers} />
-                                                        {u.alumnos}
-                                                    </MetaItem>
-                                                )}
-                                            </MetaRow>
-                                        )}
-                                    </CardInfo>
-                                    {u.ranking && (
-                                        <RankBadge $color={cardColor}>
-                                            <FontAwesomeIcon icon={faStar} />
-                                            <span>#{u.ranking}</span>
-                                        </RankBadge>
-                                    )}
-                                </CardTop>
-
-                                {/* Expandible */}
-                                {isOpen && (
-                                    <CardExpanded>
-                                        <Divider $color={cardColor} />
-                                        {u.descripcion && <Description>{u.descripcion}</Description>}
-                                        {Array.isArray(u.areas) && u.areas.length > 0 && (
-                                            <>
-                                                <AreasTitle>Áreas destacadas:</AreasTitle>
-                                                <AreasChips>
-                                                    {u.areas.map((a, i) => (
-                                                        <AreaChip key={i} $color={cardColor}>{a}</AreaChip>
-                                                    ))}
-                                                </AreasChips>
-                                            </>
-                                        )}
-                                        {u.sitio && (
-                                            <SiteLink
-                                                href={u.sitio.startsWith('http') ? u.sitio : `https://${u.sitio}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <FontAwesomeIcon icon={faGlobe} />
-                                                {u.sitio}
-                                            </SiteLink>
-                                        )}
-                                    </CardExpanded>
-                                )}
-                            </UniCard>
-                        );
-                    })
+                    filtered.map((u) => (
+                        <TarjetaUniversidad
+                            key={u.id}
+                            u={u}
+                            isOpen={expandedId === u.id}
+                            toggleExpand={toggleExpand}
+                        />
+                    ))
                 )}
             </UniList>
 
@@ -494,6 +548,7 @@ const CardExpanded = styled.div`
   flex-direction: column;
   gap: 8px;
   animation: ${expandIn} 0.25s ease-out;
+  margin-top: 4px;
 `;
 
 const Divider = styled.div`
@@ -535,6 +590,96 @@ const AreaChip = styled.span`
   font-weight: 600;
 `;
 
+// ── Becas Styled Components ───────────────────────────────────────────────────
+
+const BecasContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+`;
+
+const BecasTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  svg { color: #f59e0b; }
+`;
+
+const BecasLoadingText = styled.p`
+  font-size: 0.73rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+  font-style: italic;
+`;
+
+const BecasEmptyText = styled.p`
+  font-size: 0.73rem;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+`;
+
+const BecasList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const BecaItem = styled.div`
+  background: rgba(255,255,255,0.06);
+  border: 1px solid ${({ $color }) => $color}44;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const BecaHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+const BecaName = styled.span`
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+`;
+
+const BecaBadge = styled.span`
+  background: ${({ $color }) => $color}33;
+  border: 1px solid ${({ $color }) => $color}66;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 50px;
+  white-space: nowrap;
+`;
+
+const BecaDesc = styled.p`
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+  line-height: 1.3;
+`;
+
+const BecaReqs = styled.p`
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+
+  strong { color: rgba(255,255,255,0.8); }
+`;
+
 const SiteLink = styled.a`
   display: inline-flex;
   align-items: center;
@@ -544,7 +689,7 @@ const SiteLink = styled.a`
   color: #93c5fd;
   text-decoration: none;
   align-self: flex-start;
-  margin-top: 2px;
+  margin-top: 4px;
   transition: opacity 0.2s;
 
   &:hover { opacity: 0.8; text-decoration: underline; }
