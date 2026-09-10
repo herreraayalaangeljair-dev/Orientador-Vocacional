@@ -8,10 +8,11 @@ import {
   faArrowLeft,
   faSearch,
   faGraduationCap,
-  faFlask,
   faPalette,
   faBriefcase,
+  faUniversity,
   faStethoscope,
+  faSackDollar,
   faLaptopCode,
   faChevronRight,
   faSpinner,
@@ -58,10 +59,15 @@ const Carreras = () => {
   const [search, setSearch] = useState('');
   const [carreras, setCarreras] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
 
   useEffect(() => {
     setLoading(true);
-    const collectionsToFetch = ['Area1', 'Area2', 'Area3', 'Area4', 'carreras'];
+    const collectionsToFetch = ['Area1', 'area1', 'Area 1', 'Area2', 'Area3', 'Area4', 'carreras'];
     const unsubscribes = [];
     const carrerasDataMap = {};
 
@@ -75,21 +81,20 @@ const Carreras = () => {
               id: `${collName}_${doc.id}`,
               docId: doc.id,
               areaId: collName,
-              nombre: data.nombre || data.Nombre || doc.id,
-              duracion: data.duracion || data.Duracion || '',
-              campo: data.campo || data.Campo || data.descripcion || data.Descripcion || '',
-              area: data.area || data.Area || collName,
+              nombre: data.nombre || data.Nombre || data.carrera || data.Carrera || data.titulo || doc.id,
+              descripcion: data.descripcion || data.Descripcion || data.desc || data.campo || data.Campo || '',
+              salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo || '')),
               color: data.color || getColorForArea(collName),
             };
           });
           carrerasDataMap[collName] = docs;
 
           const combined = Object.values(carrerasDataMap).flat();
+          console.log(`[Firestore] Cargados ${combined.length} documentos:`, combined);
           setCarreras(combined);
           setLoading(false);
         },
         (error) => {
-          console.warn(`Firestore snapshot notice [${collName}]:`, error);
           carrerasDataMap[collName] = [];
           setCarreras(Object.values(carrerasDataMap).flat());
           setLoading(false);
@@ -108,14 +113,14 @@ const Carreras = () => {
     const matchArea =
       normActive === 'todas' ||
       normalizeStr(c.areaId) === normActive ||
-      normalizeStr(c.area).includes(normActive);
+      normalizeStr(c.areaId).replace(/\s+/g, '') === normActive.replace(/\s+/g, '');
 
     const normSearch = normalizeStr(search);
     const matchSearch =
       !normSearch ||
       normalizeStr(c.nombre).includes(normSearch) ||
-      normalizeStr(c.campo).includes(normSearch) ||
-      normalizeStr(c.duracion).includes(normSearch);
+      normalizeStr(c.descripcion).includes(normSearch) ||
+      normalizeStr(c.salario).includes(normSearch);
 
     return matchArea && matchSearch;
   });
@@ -138,7 +143,7 @@ const Carreras = () => {
         </SearchIcon>
         <SearchInput
           type="text"
-          placeholder="Buscar carrera o campo..."
+          placeholder="Buscar carrera, descripción o salario..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -172,25 +177,60 @@ const Carreras = () => {
             <p>No se encontraron carreras con ese criterio.</p>
           </EmptyState>
         ) : (
-          filtered.map((c) => (
-            <CarreraCard key={c.id} $color={c.color}>
-              <ColorBar $color={c.color} />
-              <CardBody>
-                <CarreraName>{c.nombre}</CarreraName>
-                {c.campo && <CarreraField>{c.campo}</CarreraField>}
-                <CarreraFooter>
-                  {c.duracion ? (
-                    <DuracionChip>🕐 {c.duracion}</DuracionChip>
-                  ) : (
-                    <DuracionChip>💰 {c.salario}</DuracionChip>
+          filtered.map((c) => {
+            const isOpen = expandedId === c.id;
+            return (
+              <CarreraCard
+                key={c.id}
+                $color={c.color}
+                $open={isOpen}
+                onClick={() => toggleExpand(c.id)}
+              >
+                <ColorBar $color={c.color} />
+                <CardBody>
+                  <CardHeaderRow>
+                    <CarreraName>{c.nombre}</CarreraName>
+                    <ChevronIcon $color={c.color} $open={isOpen}>
+                      <FontAwesomeIcon icon={faChevronRight} />
+                    </ChevronIcon>
+                  </CardHeaderRow>
+
+                  {/* Vista preliminar simple */}
+                  {!isOpen && c.salario && (
+                    <CarreraFooter>
+                      <DuracionChip><FontAwesomeIcon icon={faSackDollar} /> {c.salario}</DuracionChip>
+                    </CarreraFooter>
                   )}
-                  <ChevronIcon $color={c.color}>
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </ChevronIcon>
-                </CarreraFooter>
-              </CardBody>
-            </CarreraCard>
-          ))
+
+                  {/* Vista desplegada con detalles completos */}
+                  {isOpen && (
+                    <ExpandedContent>
+                      {c.descripcion !== '' && (
+                        <InfoBlock>
+                          <InfoBlockHeader>
+                            <FontAwesomeIcon icon={faGraduationCap} />
+                            <span>Descripción</span>
+                          </InfoBlockHeader>
+                          <InfoBlockText>{c.descripcion}</InfoBlockText>
+                        </InfoBlock>
+                      )}
+                      {(c.salario !== '' && c.salario !== undefined && c.salario !== null) && (
+                        <SalarioBadge>
+                          <FontAwesomeIcon icon={faSackDollar} />
+                          <span>{c.salario} <SalarioSub>MXN / año</SalarioSub></span>
+                        </SalarioBadge>
+                      )}
+                      <VerUniversidadesRow>
+                        <VerUniversidadesBtn type="button">
+                          <FontAwesomeIcon icon={faUniversity} /> Ver universidades
+                        </VerUniversidadesBtn>
+                      </VerUniversidadesRow>
+                    </ExpandedContent>
+                  )}
+                </CardBody>
+              </CarreraCard>
+            );
+          })
         )}
       </CarrerasList>
     </Container>
@@ -405,19 +445,21 @@ const CarreraCard = styled.div`
   width: 100%;
   display: flex;
   align-items: stretch;
-  background: rgba(255, 255, 255, 0.07);
+  background: ${({ $open }) =>
+    $open ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.07)'};
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid ${({ $open }) => ($open ? 'rgba(255, 255, 255, 0.32)' : 'rgba(255, 255, 255, 0.14)')};
   border-radius: 14px;
   overflow: hidden;
   transition: all 0.22s ease;
   box-sizing: border-box;
+  cursor: pointer;
 
   &:hover {
     background: rgba(255, 255, 255, 0.13);
     border-color: rgba(255, 255, 255, 0.28);
-    transform: translateX(3px);
+    transform: translateY(-1px);
   }
 `;
 
@@ -436,19 +478,20 @@ const CardBody = styled.div`
   gap: 3px;
 `;
 
+const CardHeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
 const CarreraName = styled.p`
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #fff;
   margin: 0;
   line-height: 1.25;
-`;
-
-const CarreraField = styled.p`
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0;
-  line-height: 1.3;
+  flex: 1;
 `;
 
 const CarreraFooter = styled.div`
@@ -460,14 +503,109 @@ const CarreraFooter = styled.div`
 
 const DuracionChip = styled.span`
   font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 600;
 `;
 
 const ChevronIcon = styled.span`
   color: ${({ $color }) => $color};
-  font-size: 0.7rem;
-  opacity: 0.8;
+  font-size: 0.75rem;
+  opacity: 0.85;
+  transition: transform 0.25s ease;
+  transform: ${({ $open }) => ($open ? 'rotate(90deg)' : 'rotate(0deg)')};
+`;
+
+const ExpandedContent = styled.div`
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: ${fadeUp} 0.3s ease-out;
+`;
+
+const InfoBlock = styled.div`
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const InfoBlockHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+`;
+
+const InfoBlockText = styled.p`
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  line-height: 1.45;
+`;
+
+const SalarioBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6ee7b7;
+`;
+
+const SalarioSub = styled.span`
+  font-size: 0.64rem;
+  font-weight: 500;
+  opacity: 0.7;
+`;
+
+const VerUniversidadesRow = styled.div`
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const VerUniversidadesBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.45);
+  transition: all 0.22s ease;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #6d28d9, #1d4ed8);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.65);
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  &:active {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+  }
 `;
 
 const EmptyState = styled.div`
