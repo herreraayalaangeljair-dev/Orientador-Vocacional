@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import db from '../firebaseConfig/firebase';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,82 +13,115 @@ import {
   faBriefcase,
   faStethoscope,
   faLaptopCode,
-  faBookOpen,
   faChevronRight,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 
-// ── Datos de carreras ─────────────────────────────────────────────────────────
+// ── Datos de áreas para filtros ─────────────────────────────────────────────
 
 const AREAS = [
-  { id: 'todas',      label: 'Todas',     icon: faGraduationCap },
-  { id: 'tech',       label: 'Tecnología', icon: faLaptopCode },
-  { id: 'salud',      label: 'Salud',     icon: faStethoscope },
-  { id: 'negocios',   label: 'Negocios',  icon: faBriefcase },
-  { id: 'ciencias',   label: 'Ciencias',  icon: faFlask },
-  { id: 'artes',      label: 'Artes',     icon: faPalette },
-  { id: 'humanidades',label: 'Humanidades', icon: faBookOpen },
+  { id: 'todas', label: 'Todas', icon: faGraduationCap },
+  { id: 'Area1', label: 'Área 1: Físico-Matemáticas', icon: faLaptopCode },
+  { id: 'Area2', label: 'Área 2: Biológicas y Salud', icon: faStethoscope },
+  { id: 'Area3', label: 'Área 3: Ciencias Sociales', icon: faBriefcase },
+  { id: 'Area4', label: 'Área 4: Humanidades y Artes', icon: faPalette },
 ];
 
-const CARRERAS = [
-  // Tecnología
-  { id: 1, area: 'tech',       nombre: 'Ingeniería en Sistemas Computacionales', duracion: '4.5 años', campo: 'Desarrollo de software, redes e IA', color: '#60a5fa' },
-  { id: 2, area: 'tech',       nombre: 'Ingeniería en Inteligencia Artificial',  duracion: '4 años',   campo: 'Machine learning, visión computacional', color: '#60a5fa' },
-  { id: 3, area: 'tech',       nombre: 'Ciberseguridad y Redes',                 duracion: '4 años',   campo: 'Seguridad informática, ethical hacking', color: '#60a5fa' },
-  { id: 4, area: 'tech',       nombre: 'Ciencia de Datos e Ingeniería',          duracion: '4 años',   campo: 'Análisis de datos, estadística avanzada', color: '#60a5fa' },
-  { id: 5, area: 'tech',       nombre: 'Ingeniería en Robótica',                 duracion: '4.5 años', campo: 'Automatización, mecatrónica, control', color: '#60a5fa' },
-  { id: 6, area: 'tech',       nombre: 'Diseño UX/UI e Interacción',             duracion: '3.5 años', campo: 'Diseño de interfaces y experiencia de usuario', color: '#60a5fa' },
-  // Salud
-  { id: 7,  area: 'salud',     nombre: 'Medicina General',                       duracion: '7 años',   campo: 'Diagnóstico, tratamiento y prevención', color: '#a78bfa' },
-  { id: 8,  area: 'salud',     nombre: 'Odontología',                            duracion: '5 años',   campo: 'Salud bucodental y cirugía maxilofacial', color: '#a78bfa' },
-  { id: 9,  area: 'salud',     nombre: 'Psicología Clínica',                     duracion: '4 años',   campo: 'Salud mental, terapia y neuropsicología', color: '#a78bfa' },
-  { id: 10, area: 'salud',     nombre: 'Nutrición y Ciencias de los Alimentos',  duracion: '4 años',   campo: 'Dietética, nutrición clínica y deportiva', color: '#a78bfa' },
-  { id: 11, area: 'salud',     nombre: 'Enfermería',                             duracion: '4 años',   campo: 'Cuidado integral del paciente', color: '#a78bfa' },
-  { id: 12, area: 'salud',     nombre: 'Fisioterapia y Rehabilitación',           duracion: '4 años',   campo: 'Recuperación física y terapia manual', color: '#a78bfa' },
-  // Negocios
-  { id: 13, area: 'negocios',  nombre: 'Administración de Empresas',             duracion: '4 años',   campo: 'Gestión organizacional, liderazgo', color: '#34d399' },
-  { id: 14, area: 'negocios',  nombre: 'Marketing Digital y Comunicación',       duracion: '3.5 años', campo: 'Publicidad, redes sociales, branding', color: '#34d399' },
-  { id: 15, area: 'negocios',  nombre: 'Finanzas y Contaduría Pública',          duracion: '4 años',   campo: 'Inversiones, contabilidad y auditoría', color: '#34d399' },
-  { id: 16, area: 'negocios',  nombre: 'Comercio Internacional',                 duracion: '4 años',   campo: 'Exportaciones, logística y aduanas', color: '#34d399' },
-  { id: 17, area: 'negocios',  nombre: 'Emprendimiento e Innovación',            duracion: '3.5 años', campo: 'Startups, modelo de negocios, inversión', color: '#34d399' },
-  // Ciencias
-  { id: 18, area: 'ciencias',  nombre: 'Ingeniería Civil',                       duracion: '5 años',   campo: 'Construcción, estructuras e infraestructura', color: '#fbbf24' },
-  { id: 19, area: 'ciencias',  nombre: 'Física Aplicada',                        duracion: '4 años',   campo: 'Investigación, energía y fotónica', color: '#fbbf24' },
-  { id: 20, area: 'ciencias',  nombre: 'Química Industrial',                     duracion: '4.5 años', campo: 'Procesos, materiales y laboratorio', color: '#fbbf24' },
-  { id: 21, area: 'ciencias',  nombre: 'Biotecnología',                          duracion: '4.5 años', campo: 'Genética, bioprocesos y bioingeniería', color: '#fbbf24' },
-  { id: 22, area: 'ciencias',  nombre: 'Ingeniería Ambiental',                   duracion: '4 años',   campo: 'Sustentabilidad, recursos naturales', color: '#fbbf24' },
-  // Artes
-  { id: 23, area: 'artes',     nombre: 'Diseño Gráfico y Comunicación Visual',   duracion: '4 años',   campo: 'Identidad visual, tipografía, multimedia', color: '#f472b6' },
-  { id: 24, area: 'artes',     nombre: 'Animación Digital y VFX',                duracion: '4 años',   campo: 'Animación 3D, efectos visuales, cine', color: '#f472b6' },
-  { id: 25, area: 'artes',     nombre: 'Arquitectura',                           duracion: '5 años',   campo: 'Diseño espacial, urbanismo, construcción', color: '#f472b6' },
-  { id: 26, area: 'artes',     nombre: 'Producción Musical y Audiovisual',       duracion: '3.5 años', campo: 'Música, cine, radio y televisión', color: '#f472b6' },
-  { id: 27, area: 'artes',     nombre: 'Fotografía y Artes Visuales',            duracion: '3 años',   campo: 'Fotografía comercial, arte contemporáneo', color: '#f472b6' },
-  // Humanidades
-  { id: 28, area: 'humanidades', nombre: 'Derecho',                              duracion: '5 años',   campo: 'Leyes, litigios y consultoría jurídica', color: '#fb923c' },
-  { id: 29, area: 'humanidades', nombre: 'Pedagogía y Ciencias de la Educación', duracion: '4 años',   campo: 'Docencia, currículo y didáctica', color: '#fb923c' },
-  { id: 30, area: 'humanidades', nombre: 'Filosofía y Humanidades',              duracion: '4 años',   campo: 'Ética, lógica e historia del pensamiento', color: '#fb923c' },
-  { id: 31, area: 'humanidades', nombre: 'Comunicación y Periodismo',            duracion: '4 años',   campo: 'Medios, narrativa y opinión pública', color: '#fb923c' },
-  { id: 32, area: 'humanidades', nombre: 'Relaciones Internacionales',           duracion: '4 años',   campo: 'Diplomacia, política exterior y DDHH', color: '#fb923c' },
-];
+const getColorForArea = (collName) => {
+  switch ((collName || '').toLowerCase()) {
+    case 'area1':
+      return '#60a5fa'; // Azul
+    case 'area2':
+      return '#a78bfa'; // Morado
+    case 'area3':
+      return '#34d399'; // Verde
+    case 'area4':
+      return '#f472b6'; // Rosa
+    default:
+      return '#fbbf24'; // Amarillo
+  }
+};
 
-// ── Componente ────────────────────────────────────────────────────────────────
+const normalizeStr = (str) =>
+  (str || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+// ── Componente Principal ───────────────────────────────────────────────────────
 
 const Carreras = () => {
   const navigate = useNavigate();
   const [activeArea, setActiveArea] = useState('todas');
   const [search, setSearch] = useState('');
+  const [carreras, setCarreras] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = CARRERAS.filter((c) => {
-    const matchArea = activeArea === 'todas' || c.area === activeArea;
+  useEffect(() => {
+    setLoading(true);
+    const collectionsToFetch = ['Area1', 'Area2', 'Area3', 'Area4', 'carreras'];
+    const unsubscribes = [];
+    const carrerasDataMap = {};
+
+    collectionsToFetch.forEach((collName) => {
+      const unsub = onSnapshot(
+        collection(db, collName),
+        (snapshot) => {
+          const docs = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: `${collName}_${doc.id}`,
+              docId: doc.id,
+              areaId: collName,
+              nombre: data.nombre || data.Nombre || doc.id,
+              duracion: data.duracion || data.Duracion || '',
+              campo: data.campo || data.Campo || data.descripcion || data.Descripcion || '',
+              area: data.area || data.Area || collName,
+              color: data.color || getColorForArea(collName),
+            };
+          });
+          carrerasDataMap[collName] = docs;
+
+          const combined = Object.values(carrerasDataMap).flat();
+          setCarreras(combined);
+          setLoading(false);
+        },
+        (error) => {
+          console.warn(`Firestore snapshot notice [${collName}]:`, error);
+          carrerasDataMap[collName] = [];
+          setCarreras(Object.values(carrerasDataMap).flat());
+          setLoading(false);
+        }
+      );
+      unsubscribes.push(unsub);
+    });
+
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+    };
+  }, []);
+
+  const filtered = carreras.filter((c) => {
+    const normActive = normalizeStr(activeArea);
+    const matchArea =
+      normActive === 'todas' ||
+      normalizeStr(c.areaId) === normActive ||
+      normalizeStr(c.area).includes(normActive);
+
+    const normSearch = normalizeStr(search);
     const matchSearch =
-      !search ||
-      c.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      c.campo.toLowerCase().includes(search.toLowerCase());
+      !normSearch ||
+      normalizeStr(c.nombre).includes(normSearch) ||
+      normalizeStr(c.campo).includes(normSearch) ||
+      normalizeStr(c.duracion).includes(normSearch);
+
     return matchArea && matchSearch;
   });
 
   return (
     <Container>
-
       {/* TopBar */}
       <TopBar>
         <BackButton onClick={() => navigate('/resultado')} type="button" aria-label="Volver">
@@ -98,7 +133,9 @@ const Carreras = () => {
 
       {/* Buscador */}
       <SearchWrapper>
-        <SearchIcon><FontAwesomeIcon icon={faSearch} /></SearchIcon>
+        <SearchIcon>
+          <FontAwesomeIcon icon={faSearch} />
+        </SearchIcon>
         <SearchInput
           type="text"
           placeholder="Buscar carrera o campo..."
@@ -124,7 +161,12 @@ const Carreras = () => {
 
       {/* Lista de carreras */}
       <CarrerasList>
-        {filtered.length === 0 ? (
+        {loading ? (
+          <LoadingState>
+            <FontAwesomeIcon icon={faSpinner} className="spin" />
+            <p>Cargando carreras de Firestore...</p>
+          </LoadingState>
+        ) : filtered.length === 0 ? (
           <EmptyState>
             <span>😕</span>
             <p>No se encontraron carreras con ese criterio.</p>
@@ -135,9 +177,13 @@ const Carreras = () => {
               <ColorBar $color={c.color} />
               <CardBody>
                 <CarreraName>{c.nombre}</CarreraName>
-                <CarreraField>{c.campo}</CarreraField>
+                {c.campo && <CarreraField>{c.campo}</CarreraField>}
                 <CarreraFooter>
-                  <DuracionChip>🕐 {c.duracion}</DuracionChip>
+                  {c.duracion ? (
+                    <DuracionChip>🕐 {c.duracion}</DuracionChip>
+                  ) : (
+                    <DuracionChip>💰 {c.salario}</DuracionChip>
+                  )}
                   <ChevronIcon $color={c.color}>
                     <FontAwesomeIcon icon={faChevronRight} />
                   </ChevronIcon>
@@ -147,7 +193,6 @@ const Carreras = () => {
           ))
         )}
       </CarrerasList>
-
     </Container>
   );
 };
@@ -157,6 +202,11 @@ const Carreras = () => {
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
+`;
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 `;
 
 // ── Styled Components ─────────────────────────────────────────────────────────
@@ -185,8 +235,8 @@ const TopBar = styled.div`
 `;
 
 const BackButton = styled.button`
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   color: #fff;
   width: 38px;
@@ -201,7 +251,7 @@ const BackButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255,255,255,0.22);
+    background: rgba(255, 255, 255, 0.22);
     transform: translateX(-2px);
   }
 `;
@@ -218,8 +268,8 @@ const TopTitle = styled.h1`
 `;
 
 const CountBadge = styled.span`
-  background: rgba(96,165,250,0.25);
-  border: 1px solid rgba(96,165,250,0.4);
+  background: rgba(96, 165, 250, 0.25);
+  border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 50px;
   color: #93c5fd;
   font-size: 0.75rem;
@@ -242,16 +292,16 @@ const SearchIcon = styled.span`
   left: 13px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
   pointer-events: none;
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   padding: 10px 14px 10px 36px;
   color: #fff;
@@ -260,12 +310,14 @@ const SearchInput = styled.input`
   box-sizing: border-box;
   transition: all 0.25s ease;
 
-  &::placeholder { color: rgba(255,255,255,0.4); }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
 
   &:focus {
-    border-color: rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.15);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -279,7 +331,9 @@ const FiltersRow = styled.div`
   animation: ${fadeUp} 0.5s 0.1s ease-out both;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const FilterChip = styled.button`
@@ -296,15 +350,16 @@ const FilterChip = styled.button`
   flex-shrink: 0;
 
   background: ${({ $active }) =>
-    $active ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.08)'};
-  border: 1px solid ${({ $active }) =>
-    $active ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.16)'};
-  color: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.7)')};
+    $active ? 'rgba(255, 255, 255, 0.28)' : 'rgba(255, 255, 255, 0.08)'};
+  border: 1px solid
+    ${({ $active }) =>
+    $active ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.16)'};
+  color: ${({ $active }) => ($active ? '#fff' : 'rgba(255, 255, 255, 0.7)')};
   box-shadow: ${({ $active }) =>
-    $active ? '0 2px 12px rgba(255,255,255,0.15)' : 'none'};
+    $active ? '0 2px 12px rgba(255, 255, 255, 0.15)' : 'none'};
 
   &:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     color: #fff;
   }
 `;
@@ -320,10 +375,29 @@ const CarrerasList = styled.div`
   padding-right: 2px;
   animation: ${fadeUp} 0.5s 0.15s ease-out both;
 
-  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
+  }
+`;
+
+const LoadingState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 50px 20px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+
+  .spin {
+    animation: ${spin} 1s linear infinite;
+    font-size: 1.6rem;
+    color: #60a5fa;
   }
 `;
 
@@ -331,18 +405,18 @@ const CarreraCard = styled.div`
   width: 100%;
   display: flex;
   align-items: stretch;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   overflow: hidden;
   transition: all 0.22s ease;
   box-sizing: border-box;
 
   &:hover {
-    background: rgba(255,255,255,0.13);
-    border-color: rgba(255,255,255,0.28);
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.28);
     transform: translateX(3px);
   }
 `;
@@ -372,7 +446,7 @@ const CarreraName = styled.p`
 
 const CarreraField = styled.p`
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
   line-height: 1.3;
 `;
@@ -386,7 +460,7 @@ const CarreraFooter = styled.div`
 
 const DuracionChip = styled.span`
   font-size: 0.68rem;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   font-weight: 600;
 `;
 
@@ -404,10 +478,12 @@ const EmptyState = styled.div`
   gap: 8px;
   padding: 40px 20px;
 
-  span { font-size: 2.5rem; }
+  span {
+    font-size: 2.5rem;
+  }
   p {
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     text-align: center;
     margin: 0;
   }
