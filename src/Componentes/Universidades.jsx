@@ -5,282 +5,302 @@ import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faArrowLeft,
-    faSearch,
-    faLocationDot,
-    faStar,
-    faUsers,
-    faGlobe,
-    faFilter,
-    faAward,
+  faArrowLeft,
+  faSearch,
+  faLocationDot,
+  faStar,
+  faGraduationCap,
+  faUsers,
+  faGlobe,
+  faFilter,
+  faAward,
+  faMedal,
+  faExternalLinkAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 // ── Datos / Filtros ───────────────────────────────────────────────────────────
 
 const TIPOS = [
-    { id: 'todas', label: 'Todas' },
-    { id: 'pública', label: 'Pública' },
-    { id: 'privada', label: 'Privada' }
+  { id: 'todas', label: 'Todas' },
+  { id: 'pública', label: 'Pública' },
+  { id: 'privada', label: 'Privada' }
 ];
 
 // Helper para quitar tildes y normalizar texto
 const normalizeStr = (str) =>
-    (str || '')
-        .toString()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
+  (str || '')
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 
 // ── Componente Tarjeta Individual con Subcolección 'becas' ────────────────────
 
 const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
-    const [becas, setBecas] = useState([]);
-    const [loadingBecas, setLoadingBecas] = useState(false);
+  const [becas, setBecas] = useState([]);
+  const [loadingBecas, setLoadingBecas] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            setLoadingBecas(true);
-            const unsubscribe = onSnapshot(
-                collection(db, 'universidades', u.id, 'Beca'),
-                (snapshot) => {
-                    const arregloBecas = snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        nombre: doc.data().nombre || doc.data().Nombre || doc.id
-                    }));
-                    setBecas(arregloBecas);
-                    setLoadingBecas(false);
-                },
-                (error) => {
-                    console.error(`Error al obtener becas de ${u.id}:`, error);
-                    setLoadingBecas(false);
-                }
-            );
-            return () => unsubscribe();
+  useEffect(() => {
+    if (isOpen) {
+      setLoadingBecas(true);
+      const unsubscribe = onSnapshot(
+        collection(db, 'universidades', u.id, 'Beca'),
+        (snapshot) => {
+          const arregloBecas = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            nombre: doc.data().nombre || doc.data().Nombre || doc.id
+          }));
+          setBecas(arregloBecas);
+          setLoadingBecas(false);
+        },
+        (error) => {
+          console.error(`Error al obtener becas de ${u.id}:`, error);
+          setLoadingBecas(false);
         }
-    }, [isOpen, u.id]);
+      );
+      return () => unsubscribe();
+    }
+  }, [isOpen, u.id]);
 
-    const normTipo = normalizeStr(u.tipo);
-    const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
-    const cardColor = u.color || defaultColor;
+  const normTipo = normalizeStr(u.tipo);
+  const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
+  const cardColor = u.color || defaultColor;
 
-    // Detectar si u.logo, u.imagen o u.emoji contiene un link de Cloudinary/http
-    const logoUrl = u.logo || u.imagen || (u.emoji && u.emoji.startsWith('http') ? u.emoji : null);
-    const emojiFallback = normTipo === 'publica' ? '🏛️' : '🚀';
+  // Detectar si u.logo, u.imagen o u.emoji contiene un link de Cloudinary/http
+  const logoUrl = u.logo || u.imagen || (u.emoji && u.emoji.startsWith('http') ? u.emoji : null);
+  const emojiFallback = normTipo === 'publica' ? '🏛️' : '🚀';
 
-    const uniTitle = u.id;
-    const uniSubTitle = u.nombre;
+  const uniTitle = u.id;
+  const uniSubTitle = u.nombre;
 
-    return (
-        <UniCard
-            $color={cardColor}
-            $open={isOpen}
-            onClick={() => toggleExpand(u.id)}
-        >
-            {/* Cabecera de la tarjeta */}
-            <CardTop>
-                <EmojiBox $color={cardColor}>
-                    {logoUrl ? (
-                        <UniLogo src={logoUrl} alt={uniTitle} />
-                    ) : (
-                        u.emoji && !u.emoji.startsWith('http') ? u.emoji : emojiFallback
-                    )}
-                </EmojiBox>
-                <CardInfo>
-                    <UniName>{uniTitle}</UniName>
-                    {uniSubTitle && <UniFullName>{uniSubTitle}</UniFullName>}
+  return (
+    <UniCard
+      $color={cardColor}
+      $open={isOpen}
+      onClick={() => toggleExpand(u.id)}
+    >
+      {/* Cabecera de la tarjeta */}
+      <CardTop>
+        <EmojiBox $color={cardColor}>
+          {logoUrl ? (
+            <UniLogo src={logoUrl} alt={uniTitle} />
+          ) : (
+            u.emoji && !u.emoji.startsWith('http') ? u.emoji : emojiFallback
+          )}
+        </EmojiBox>
+        <CardInfo>
+          <UniName>{uniTitle}</UniName>
+          {uniSubTitle && <UniFullName>{uniSubTitle}</UniFullName>}
 
-                    {/* Sitio oficial */}
-                    {u.sitio && (
-                        <SiteLink
-                            href={u.sitio.startsWith('http') ? u.sitio : `https://${u.sitio}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <FontAwesomeIcon icon={faGlobe} />
-                            Sitio oficial
-                        </SiteLink>
-                    )}
-                </CardInfo>
-                {u.ranking && (
-                    <RankBadge $color={cardColor}>
-                        <FontAwesomeIcon icon={faStar} />
-                        <span>#{u.ranking}</span>
-                    </RankBadge>
+          {/* Sitio oficial */}
+          {u.sitio && (
+            <SiteLink
+              href={u.sitio.startsWith('http') ? u.sitio : `https://${u.sitio}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <FontAwesomeIcon icon={faGlobe} />
+              Sitio oficial
+            </SiteLink>
+          )}
+        </CardInfo>
+        {u.ranking && (
+          <RankBadge $color={cardColor}>
+            <FontAwesomeIcon icon={faStar} />
+            <span>#{u.ranking}</span>
+          </RankBadge>
+        )}
+      </CardTop>
+
+      {/* Expandible */}
+      {isOpen && (
+        <CardExpanded>
+          <Divider $color={cardColor} />
+          {u.descripcion && <Description>{u.descripcion}</Description>}
+
+          {Array.isArray(u.areas) && u.areas.length > 0 && (
+            <>
+              <AreasTitle>Áreas destacadas:</AreasTitle>
+              <AreasChips>
+                {u.areas.map((a, i) => (
+                  <AreaChip key={i} $color={cardColor}>{a}</AreaChip>
+                ))}
+              </AreasChips>
+            </>
+          )}
+
+          {/* Subcolección Beca */}
+          <BecasContainer $color={cardColor}>
+            <BecasTitleRow>
+              <BecasTitleLeft>
+                <BecasIconWrapper $color={cardColor}>
+                  <FontAwesomeIcon icon={faAward} />
+                </BecasIconWrapper>
+                <BecasTitleText>Becas disponibles</BecasTitleText>
+                {!loadingBecas && becas.length > 0 && (
+                  <BecasCountBadge $color={cardColor}>{becas.length}</BecasCountBadge>
                 )}
-            </CardTop>
+              </BecasTitleLeft>
+              {u.sitioBecas && (
+                <BecasSiteLink
+                  href={u.sitioBecas.startsWith('http') ? u.sitioBecas : `https://${u.sitioBecas}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FontAwesomeIcon icon={faExternalLinkAlt} />
+                  <span>Ver todas</span>
+                </BecasSiteLink>
+              )}
+            </BecasTitleRow>
 
-            {/* Expandible */}
-            {isOpen && (
-                <CardExpanded>
-                    <Divider $color={cardColor} />
-                    {u.descripcion && <Description>{u.descripcion}</Description>}
-
-                    {Array.isArray(u.areas) && u.areas.length > 0 && (
-                        <>
-                            <AreasTitle>Áreas destacadas:</AreasTitle>
-                            <AreasChips>
-                                {u.areas.map((a, i) => (
-                                    <AreaChip key={i} $color={cardColor}>{a}</AreaChip>
-                                ))}
-                            </AreasChips>
-                        </>
-                    )}
-
-                    {/* Subcolección Beca */}
-                    <BecasContainer>
-                        <BecasTitle>
-                            <FontAwesomeIcon icon={faAward} />
-
-                            {/*Sitio de becas */}
-                            {u.sitioBecas && (
-                                <SiteLink
-                                    href={u.sitioBecas.startsWith('http') ? u.sitioBecas : `https://${u.sitioBecas}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <span>Becas disponibles ({becas.length})</span>
-                                </SiteLink>
-                            )}
-
-                        </BecasTitle>
-                        {loadingBecas ? (
-                            <BecasLoadingText>Cargando becas...</BecasLoadingText>
-                        ) : becas.length === 0 ? (
-                            <BecasEmptyText>Sin becas registradas actualmente.</BecasEmptyText>
-                        ) : (
-                            <BecasList>
-                                {becas.map((b) => (
-                                    <BecaItem key={b.id} $color={cardColor}>
-                                        <BecaName>{b.nombre}</BecaName>
-                                    </BecaItem>
-                                ))}
-                            </BecasList>
-                        )}
-                    </BecasContainer>
-
-                </CardExpanded>
+            {loadingBecas ? (
+              <BecasShimmerList>
+                <BecasShimmerItem />
+                <BecasShimmerItem style={{ width: '80%' }} />
+                <BecasShimmerItem style={{ width: '65%' }} />
+              </BecasShimmerList>
+            ) : becas.length === 0 ? (
+              <BecasEmptyState>
+                <span>🎓</span>
+                <BecasEmptyText>Sin becas registradas actualmente</BecasEmptyText>
+              </BecasEmptyState>
+            ) : (
+              <BecasList>
+                {becas.map((b, index) => (
+                  <BecaItem key={b.id} $color={cardColor} $index={index}>
+                    <BecaMedalIcon $color={cardColor}>
+                      <FontAwesomeIcon icon={faMedal} />
+                    </BecaMedalIcon>
+                    <BecaName>{b.nombre}</BecaName>
+                  </BecaItem>
+                ))}
+              </BecasList>
             )}
-        </UniCard>
-    );
+          </BecasContainer>
+
+        </CardExpanded>
+      )}
+    </UniCard>
+  );
 };
 
 // ── Componente Principal ──────────────────────────────────────────────────────
 
 const Universidades = () => {
-    const navigate = useNavigate();
-    const [tipo, setTipo] = useState('todas');
-    const [search, setSearch] = useState('');
-    const [expandedId, setExpandedId] = useState(null);
-    const [universidades, setUniversidades] = useState([]);
+  const navigate = useNavigate();
+  const [tipo, setTipo] = useState('todas');
+  const [search, setSearch] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
+  const [universidades, setUniversidades] = useState([]);
 
-    useEffect(() => {
-        const unsubscribe = onSnapshot(
-            collection(db, 'universidades'),
-            (snapshot) => {
-                const arreglo = snapshot.docs.map((doc) => {
-                    return { id: doc.id, ...doc.data() };
-                });
-                console.log(`Universidades cargadas de Firestore (${arreglo.length}):`, arreglo);
-                setUniversidades(arreglo);
-            },
-            (error) => {
-                console.error('Error al obtener universidades de Firestore:', error);
-            }
-        );
-
-        return () => unsubscribe();
-    }, []);
-
-    const filtered = universidades.filter((u) => {
-        const uTipo = normalizeStr(u.tipo);
-        const selectedTipo = normalizeStr(tipo);
-        const matchTipo = selectedTipo === 'todas' || uTipo === selectedTipo;
-
-        const q = normalizeStr(search);
-        const idStr = normalizeStr(u.id);
-        const nombreStr = normalizeStr(u.nombre);
-        const nombreCompletoStr = normalizeStr(u.nombreCompleto);
-        const ubicacionStr = normalizeStr(u.ubicacion);
-        const areas = Array.isArray(u.areas) ? u.areas : [];
-
-        const matchSearch =
-            !q ||
-            idStr.includes(q) ||
-            nombreStr.includes(q) ||
-            nombreCompletoStr.includes(q) ||
-            ubicacionStr.includes(q) ||
-            areas.some((a) => normalizeStr(a).includes(q));
-
-        return matchTipo && matchSearch;
-    });
-
-    const toggleExpand = (id) =>
-        setExpandedId((prev) => (prev === id ? null : id));
-
-    return (
-        <Container>
-
-            {/* TopBar */}
-            <TopBar>
-                <BackButton onClick={() => navigate('/resultado')} type="button" aria-label="Volver">
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                </BackButton>
-                <TopTitle>Universidades</TopTitle>
-                <CountBadge>{filtered.length}</CountBadge>
-            </TopBar>
-
-            {/* Buscador */}
-            <SearchWrapper>
-                <SearchIcon><FontAwesomeIcon icon={faSearch} /></SearchIcon>
-                <SearchInput
-                    type="text"
-                    placeholder="Buscar universidad, área..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </SearchWrapper>
-
-            {/* Filtros de tipo */}
-            <FiltersRow>
-                <FilterLabel>
-                    <FontAwesomeIcon icon={faFilter} />
-                </FilterLabel>
-                {TIPOS.map((t) => (
-                    <FilterChip
-                        key={t.id}
-                        $active={tipo === t.id}
-                        onClick={() => setTipo(t.id)}
-                        type="button"
-                    >
-                        {t.label}
-                    </FilterChip>
-                ))}
-            </FiltersRow>
-
-            {/* Lista */}
-            <UniList>
-                {filtered.length === 0 ? (
-                    <EmptyState>
-                        <span>🎓</span>
-                        <p>No se encontraron universidades con ese criterio.</p>
-                    </EmptyState>
-                ) : (
-                    filtered.map((u) => (
-                        <TarjetaUniversidad
-                            key={u.id}
-                            u={u}
-                            isOpen={expandedId === u.id}
-                            toggleExpand={toggleExpand}
-                        />
-                    ))
-                )}
-            </UniList>
-
-        </Container>
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, 'universidades'),
+      (snapshot) => {
+        const arreglo = snapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() };
+        });
+        console.log(`Universidades cargadas de Firestore (${arreglo.length}):`, arreglo);
+        setUniversidades(arreglo);
+      },
+      (error) => {
+        console.error('Error al obtener universidades de Firestore:', error);
+      }
     );
+
+    return () => unsubscribe();
+  }, []);
+
+  const filtered = universidades.filter((u) => {
+    const uTipo = normalizeStr(u.tipo);
+    const selectedTipo = normalizeStr(tipo);
+    const matchTipo = selectedTipo === 'todas' || uTipo === selectedTipo;
+
+    const q = normalizeStr(search);
+    const idStr = normalizeStr(u.id);
+    const nombreStr = normalizeStr(u.nombre);
+    const nombreCompletoStr = normalizeStr(u.nombreCompleto);
+    const ubicacionStr = normalizeStr(u.ubicacion);
+    const areas = Array.isArray(u.areas) ? u.areas : [];
+
+    const matchSearch =
+      !q ||
+      idStr.includes(q) ||
+      nombreStr.includes(q) ||
+      nombreCompletoStr.includes(q) ||
+      ubicacionStr.includes(q) ||
+      areas.some((a) => normalizeStr(a).includes(q));
+
+    return matchTipo && matchSearch;
+  });
+
+  const toggleExpand = (id) =>
+    setExpandedId((prev) => (prev === id ? null : id));
+
+  return (
+    <Container>
+
+      {/* TopBar */}
+      <TopBar>
+        <BackButton onClick={() => navigate('/resultado')} type="button" aria-label="Volver">
+          <FontAwesomeIcon icon={faArrowLeft} />
+        </BackButton>
+        <TopTitle>Universidades</TopTitle>
+        <CountBadge>{filtered.length}</CountBadge>
+      </TopBar>
+
+      {/* Buscador */}
+      <SearchWrapper>
+        <SearchIcon><FontAwesomeIcon icon={faSearch} /></SearchIcon>
+        <SearchInput
+          type="text"
+          placeholder="Buscar universidad, área..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </SearchWrapper>
+
+      {/* Filtros de tipo */}
+      <FiltersRow>
+        <FilterLabel>
+          <FontAwesomeIcon icon={faFilter} />
+        </FilterLabel>
+        {TIPOS.map((t) => (
+          <FilterChip
+            key={t.id}
+            $active={tipo === t.id}
+            onClick={() => setTipo(t.id)}
+            type="button"
+          >
+            {t.label}
+          </FilterChip>
+        ))}
+      </FiltersRow>
+
+      {/* Lista */}
+      <UniList>
+        {filtered.length === 0 ? (
+          <EmptyState>
+            <span>🎓</span>
+            <p>No se encontraron universidades con ese criterio.</p>
+          </EmptyState>
+        ) : (
+          filtered.map((u) => (
+            <TarjetaUniversidad
+              key={u.id}
+              u={u}
+              isOpen={expandedId === u.id}
+              toggleExpand={toggleExpand}
+            />
+          ))
+        )}
+      </UniList>
+
+    </Container>
+  );
 };
 
 // ── Animaciones ───────────────────────────────────────────────────────────────
@@ -424,9 +444,9 @@ const FilterChip = styled.button`
   white-space: nowrap;
 
   background: ${({ $active }) =>
-        $active ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.08)'};
+    $active ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.08)'};
   border: 1px solid ${({ $active }) =>
-        $active ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.16)'};
+    $active ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.16)'};
   color: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.7)')};
 
   &:hover { background: rgba(255,255,255,0.2); color: #fff; }
@@ -458,14 +478,14 @@ const UniCard = styled.div`
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid ${({ $open, $color }) =>
-        $open ? $color + '99' : 'rgba(255,255,255,0.13)'};
+    $open ? $color + '99' : 'rgba(255,255,255,0.13)'};
   border-radius: 16px;
   padding: 12px 14px;
   box-sizing: border-box;
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: ${({ $open, $color }) =>
-        $open ? `0 6px 20px ${$color}33` : '0 4px 12px rgba(0,0,0,0.2)'};
+    $open ? `0 6px 20px ${$color}33` : '0 4px 12px rgba(0,0,0,0.2)'};
 
   &:hover {
     background: rgba(255,255,255,0.12);
@@ -611,93 +631,172 @@ const AreaChip = styled.span`
 
 // ── Becas Styled Components ───────────────────────────────────────────────────
 
+const shimmer = keyframes`
+  0%   { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+`;
+
 const BecasContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 8px;
+  margin-top: 6px;
+  background: ${({ $color }) => $color}0d;
+  border: 1px solid ${({ $color }) => $color}33;
+  border-radius: 14px;
+  padding: 10px 12px;
 `;
 
-const BecasTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  svg { color: #f59e0b; }
-`;
-
-const BecasLoadingText = styled.p`
-  font-size: 0.73rem;
-  color: rgba(255,255,255,0.5);
-  margin: 0;
-  font-style: italic;
-`;
-
-const BecasEmptyText = styled.p`
-  font-size: 0.73rem;
-  color: rgba(255,255,255,0.45);
-  margin: 0;
-`;
-
-const BecasList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const BecaItem = styled.div`
-  background: rgba(255,255,255,0.06);
-  border: 1px solid ${({ $color }) => $color}44;
-  border-radius: 10px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const BecaHeader = styled.div`
+const BecasTitleRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 `;
 
-const BecaName = styled.span`
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #fff;
+const BecasTitleLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 7px;
 `;
 
-const BecaBadge = styled.span`
-  background: ${({ $color }) => $color}33;
-  border: 1px solid ${({ $color }) => $color}66;
+const BecasIconWrapper = styled.div`
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
   color: #fff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 50px;
-  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(245,158,11,0.4);
 `;
 
-const BecaDesc = styled.p`
+const BecasTitleText = styled.span`
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.75);
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+`;
+
+const BecasCountBadge = styled.span`
+  background: linear-gradient(135deg, #f59e0b33, #f9731633);
+  border: 1px solid #f59e0b66;
+  color: #fbbf24;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 50px;
+  letter-spacing: 0.3px;
+`;
+
+const BecasSiteLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: #93c5fd;
+  text-decoration: none;
+  background: rgba(147,197,253,0.1);
+  border: 1px solid rgba(147,197,253,0.25);
+  border-radius: 50px;
+  padding: 3px 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  svg { font-size: 0.55rem; }
+
+  &:hover {
+    background: rgba(147,197,253,0.2);
+    color: #bfdbfe;
+    border-color: rgba(147,197,253,0.45);
+  }
+`;
+
+const BecasShimmerList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const BecasShimmerItem = styled.div`
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 200px 100%;
+  animation: ${shimmer} 1.4s ease-in-out infinite;
+`;
+
+const BecasEmptyState = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+
+  span { font-size: 1rem; }
+`;
+
+const BecasEmptyText = styled.p`
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
   margin: 0;
+  font-style: italic;
+`;
+
+const BecasList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
+const BecaItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid ${({ $color }) => $color}30;
+  border-left: 3px solid ${({ $color }) => $color}99;
+  border-radius: 10px;
+  padding: 7px 10px;
+  transition: all 0.2s ease;
+  animation: ${expandIn} 0.2s ease-out both;
+  animation-delay: ${({ $index }) => $index * 0.04}s;
+
+  &:hover {
+    background: rgba(255,255,255,0.09);
+    border-left-color: ${({ $color }) => $color}dd;
+    transform: translateX(2px);
+  }
+`;
+
+const BecaMedalIcon = styled.span`
+  font-size: 0.65rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+  opacity: 0.85;
+`;
+
+const BecaName = styled.span`
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
   line-height: 1.3;
 `;
 
-const BecaReqs = styled.p`
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.6);
-  margin: 0;
-
-  strong { color: rgba(255,255,255,0.8); }
-`;
+// Legacy stubs (unused but kept to avoid missing-ref errors)
+const BecaHeader = styled.div``;
+const BecaBadge = styled.span``;
+const BecaDesc = styled.p``;
+const BecaReqs = styled.p``;
 
 const SiteLink = styled.a`
   display: inline-flex;
