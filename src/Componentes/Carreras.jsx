@@ -292,19 +292,20 @@ const spin = keyframes`
 
 const CarrerasList = styled.div`
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
   overflow-y: auto;
-  padding-right: 2px;
+  padding-right: 4px;
   animation: ${fadeUp} 0.5s 0.15s ease-out both;
 
   &::-webkit-scrollbar {
-    width: 3px;
+    width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
   }
 `;
 
@@ -328,6 +329,8 @@ const LoadingState = styled.div`
 const CarreraCard = styled.div`
   width: 100%;
   display: flex;
+  flex-shrink: 0;
+  height: max-content;
   align-items: stretch;
   background: ${({ $open }) =>
     $open ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.07)'};
@@ -356,10 +359,10 @@ const ColorBar = styled.div`
 
 const CardBody = styled.div`
   flex: 1;
-  padding: 10px 12px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 8px;
 `;
 
 const CardHeaderRow = styled.div`
@@ -370,11 +373,11 @@ const CardHeaderRow = styled.div`
 `;
 
 const CarreraName = styled.p`
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.3;
   flex: 1;
 `;
 
@@ -400,12 +403,12 @@ const ChevronIcon = styled.span`
 `;
 
 const ExpandedContent = styled.div`
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   animation: ${fadeUp} 0.3s ease-out;
 `;
 
@@ -413,10 +416,10 @@ const InfoBlock = styled.div`
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 `;
 
 const InfoBlockHeader = styled.div`
