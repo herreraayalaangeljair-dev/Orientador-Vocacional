@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import db from '../firebaseConfig/firebase';
 import styled, { keyframes } from 'styled-components';
+import {
+  Container,
+  TopBar,
+  BackButton,
+  TopTitle,
+  CountBadge,
+  SearchWrapper,
+  SearchIcon,
+  SearchInput,
+  FiltersRow,
+  FilterChip,
+  EmptyState,
+  fadeUp,
+} from '../Elementos/EstilosComunes';
 import { useNavigate } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -237,172 +251,16 @@ const Carreras = () => {
   );
 };
 
-// ── Animaciones ───────────────────────────────────────────────────────────────
-
-const fadeUp = keyframes`
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
+// ── Animaciones (locales) ───────────────────────────────────────────────
 
 const spin = keyframes`
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 `;
 
-// ── Styled Components ─────────────────────────────────────────────────────────
+// ── Styled Components (locales) ───────────────────────────────────────────────
 
-const Container = styled.div`
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 20px 12px;
-  box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  gap: 12px;
-  overflow: hidden;
-`;
-
-// ── TopBar ────────────────────────────────────────────────────────────────────
-
-const TopBar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: ${fadeUp} 0.5s ease-out;
-`;
-
-const BackButton = styled.button`
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: #fff;
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.22);
-    transform: translateX(-2px);
-  }
-`;
-
-const TopTitle = styled.h1`
-  flex: 1;
-  font-size: 1rem;
-  font-weight: 800;
-  color: #fff;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const CountBadge = styled.span`
-  background: rgba(96, 165, 250, 0.25);
-  border: 1px solid rgba(96, 165, 250, 0.4);
-  border-radius: 50px;
-  color: #93c5fd;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 3px 10px;
-  min-width: 28px;
-  text-align: center;
-`;
-
-// ── Buscador ──────────────────────────────────────────────────────────────────
-
-const SearchWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  animation: ${fadeUp} 0.5s 0.05s ease-out both;
-`;
-
-const SearchIcon = styled.span`
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
-  pointer-events: none;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  padding: 10px 14px 10px 36px;
-  color: #fff;
-  font-size: 0.88rem;
-  outline: none;
-  box-sizing: border-box;
-  transition: all 0.25s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
-
-  &:focus {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-  }
-`;
-
-// ── Filtros ───────────────────────────────────────────────────────────────────
-
-const FiltersRow = styled.div`
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  animation: ${fadeUp} 0.5s 0.1s ease-out both;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const FilterChip = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-  padding: 6px 12px;
-  border-radius: 50px;
-  font-size: 0.73rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-
-  background: ${({ $active }) =>
-    $active ? 'rgba(255, 255, 255, 0.28)' : 'rgba(255, 255, 255, 0.08)'};
-  border: 1px solid
-    ${({ $active }) =>
-    $active ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.16)'};
-  color: ${({ $active }) => ($active ? '#fff' : 'rgba(255, 255, 255, 0.7)')};
-  box-shadow: ${({ $active }) =>
-    $active ? '0 2px 12px rgba(255, 255, 255, 0.15)' : 'none'};
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-  }
-`;
+// ── Lista ─────────────────────────────────────────────────────────────────────
 
 // ── Lista ─────────────────────────────────────────────────────────────────────
 
@@ -608,23 +466,6 @@ const VerUniversidadesBtn = styled.button`
   }
 `;
 
-const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 40px 20px;
-
-  span {
-    font-size: 2.5rem;
-  }
-  p {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.65);
-    text-align: center;
-    margin: 0;
-  }
-`;
+// EmptyState importado desde EstilosComunes
 
 export default Carreras;
