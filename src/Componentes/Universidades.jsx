@@ -10,6 +10,7 @@ import {
   faLocationDot,
   faStar,
   faGraduationCap,
+  faTrophy,
   faUsers,
   faGlobe,
   faFilter,
@@ -164,7 +165,7 @@ const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
               </BecasShimmerList>
             ) : becas.length === 0 ? (
               <BecasEmptyState>
-                <span>🎓</span>
+                <FontAwesomeIcon icon={faGraduationCap} />
                 <BecasEmptyText>Sin becas registradas actualmente</BecasEmptyText>
               </BecasEmptyState>
             ) : (
@@ -249,6 +250,10 @@ const Universidades = () => {
           <FontAwesomeIcon icon={faArrowLeft} />
         </BackButton>
         <TopTitle>Universidades</TopTitle>
+        <RankingLink href='https://www.topuniversities.com/world-university-rankings?countries=mx' target='_blank' rel='noopener noreferrer'>
+          <FontAwesomeIcon icon={faTrophy} />
+          <span>Rankings</span>
+        </RankingLink>
         <CountBadge>{filtered.length}</CountBadge>
       </TopBar>
 
@@ -284,7 +289,7 @@ const Universidades = () => {
       <UniList>
         {filtered.length === 0 ? (
           <EmptyState>
-            <span>🎓</span>
+            <FontAwesomeIcon icon={faGraduationCap} />
             <p>No se encontraron universidades con ese criterio.</p>
           </EmptyState>
         ) : (
@@ -313,6 +318,16 @@ const fadeUp = keyframes`
 const expandIn = keyframes`
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
+`;
+
+const shimmer = keyframes`
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+`;
+
+const pulseGlow = keyframes`
+  0%, 100% { box-shadow: 0 0 0px 0px rgba(96,165,250,0.0); }
+  50%       { box-shadow: 0 0 10px 3px rgba(96,165,250,0.35); }
 `;
 
 // ── Styled Components ─────────────────────────────────────────────────────────
@@ -371,13 +386,17 @@ const TopTitle = styled.h1`
 `;
 
 const CountBadge = styled.span`
-  background: rgba(96,165,250,0.22);
-  border: 1px solid rgba(96,165,250,0.35);
-  border-radius: 50px;
-  color: #93c5fd;
-  font-size: 0.74rem;
-  font-weight: 700;
-  padding: 3px 10px;
+background: linear-gradient(135deg, rgba(37,99,235,0.85) 0%, rgba(109,40,217,0.80) 100%);
+border: 1.5px solid rgba(167,139,250,0.9);
+border-radius: 50px;
+color: #ffffff;
+font-size: 0.8rem;
+font-weight: 800;
+padding: 4px 13px;
+letter-spacing: 0.04em;
+backdrop-filter: blur(8px);
+animation: ${pulseGlow} 3s ease-in-out infinite;
+box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 12px rgba(139,92,246,0.5);
 `;
 
 // ── Buscador ──────────────────────────────────────────────────────────────────
@@ -631,7 +650,7 @@ const AreaChip = styled.span`
 
 // ── Becas Styled Components ───────────────────────────────────────────────────
 
-const shimmer = keyframes`
+const shimmerBecas = keyframes`
   0%   { background-position: -200px 0; }
   100% { background-position: calc(200px + 100%) 0; }
 `;
@@ -733,7 +752,7 @@ const BecasShimmerItem = styled.div`
     rgba(255,255,255,0.05) 75%
   );
   background-size: 200px 100%;
-  animation: ${shimmer} 1.4s ease-in-out infinite;
+  animation: ${shimmerBecas} 1.4s ease-in-out infinite;
 `;
 
 const BecasEmptyState = styled.div`
@@ -811,6 +830,51 @@ const SiteLink = styled.a`
   transition: opacity 0.2s;
 
   &:hover { opacity: 0.8; text-decoration: underline; }
+`;
+
+const RankingLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(
+    120deg,
+    rgba(251,191,36,0.18) 0%,
+    rgba(245,158,11,0.28) 40%,
+    rgba(251,191,36,0.18) 100%
+  );
+  background-size: 200% auto;
+  border: 1.5px solid rgba(251,191,36,0.55);
+  border-radius: 50px;
+  color: #fcd34d;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.04em;
+  transition: all 0.25s ease;
+  box-shadow:
+    0 2px 8px rgba(245,158,11,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+  animation: ${shimmer} 3.5s linear infinite;
+
+  svg {
+    font-size: 0.75rem;
+    filter: drop-shadow(0 0 4px rgba(251,191,36,0.6));
+  }
+
+  &:hover {
+    background-position: right center;
+    border-color: rgba(251,191,36,0.85);
+    color: #fde68a;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+      0 6px 18px rgba(245,158,11,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+
+  &:active { transform: translateY(0) scale(0.98); }
 `;
 
 const EmptyState = styled.div`
