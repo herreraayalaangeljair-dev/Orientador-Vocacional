@@ -22,11 +22,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft,
   faSearch,
-  faLocationDot,
   faStar,
   faGraduationCap,
   faTrophy,
-  faUsers,
   faGlobe,
   faFilter,
   faAward,
@@ -435,23 +433,7 @@ const UniFullName = styled.p`
   text-overflow: ellipsis;
 `;
 
-const MetaRow = styled.div`
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 2px;
-`;
 
-const MetaItem = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.6);
-  font-weight: 500;
-
-  svg { font-size: 0.62rem; }
-`;
 
 const RankBadge = styled.div`
   display: flex;
@@ -680,11 +662,6 @@ const BecaName = styled.span`
   line-height: 1.3;
 `;
 
-// Legacy stubs (unused but kept to avoid missing-ref errors)
-const BecaHeader = styled.div``;
-const BecaBadge = styled.span``;
-const BecaDesc = styled.p``;
-const BecaReqs = styled.p``;
 
 const SiteLink = styled.a`
   display: inline-flex;

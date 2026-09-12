@@ -30,6 +30,7 @@ import {
   faLaptopCode,
   faChevronRight,
   faSpinner,
+  faVideo,
 } from '@fortawesome/free-solid-svg-icons';
 
 // ── Datos de áreas para filtros ─────────────────────────────────────────────
@@ -99,6 +100,7 @@ const Carreras = () => {
               descripcion: data.descripcion || data.Descripcion || data.desc || data.campo || data.Campo || '',
               salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo || '')),
               color: data.color || getColorForArea(collName),
+              video: data.videoExplicativo || '',
             };
           });
           carrerasDataMap[collName] = docs;
@@ -226,6 +228,12 @@ const Carreras = () => {
                             <span>Descripción</span>
                           </InfoBlockHeader>
                           <InfoBlockText>{c.descripcion}</InfoBlockText>
+                          {c.video && (
+                            <VideoLink href={c.video} target="_blank" rel="noopener noreferrer">
+                              <FontAwesomeIcon icon={faVideo} />
+                              <span>Video explicativo</span>
+                            </VideoLink>
+                          )}
                         </InfoBlock>
                       )}
                       {(c.salario !== '' && c.salario !== undefined && c.salario !== null) && (
@@ -247,6 +255,24 @@ const Carreras = () => {
           })
         )}
       </CarrerasList>
+
+      <SalaryFooter>
+        <SalaryFooterLabel>
+          <FontAwesomeIcon icon={faSackDollar} />
+          <span>Información salarial extraída de:</span>
+        </SalaryFooterLabel>
+        <SalaryLinksRow>
+          <SalaryLink href="https://mx.indeed.com/career/salaries" target="_blank" rel="noopener noreferrer">
+            <FontAwesomeIcon icon={faBriefcase} />
+            Indeed México
+          </SalaryLink>
+          <SalaryLink href="https://www.glassdoor.com.mx/Sueldos/index.htm" target="_blank" rel="noopener noreferrer">
+            <FontAwesomeIcon icon={faBriefcase} />
+            Glassdoor México
+          </SalaryLink>
+        </SalaryLinksRow>
+      </SalaryFooter>
+
     </Container>
   );
 };
@@ -411,6 +437,36 @@ const InfoBlockText = styled.p`
   line-height: 1.45;
 `;
 
+const VideoLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #ff7e7e;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.12);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  align-self: flex-start;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.22);
+    border-color: rgba(239, 68, 68, 0.6);
+    color: #ffa1a1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 const SalarioBadge = styled.div`
   display: inline-flex;
   align-items: center;
@@ -467,5 +523,66 @@ const VerUniversidadesBtn = styled.button`
 `;
 
 // EmptyState importado desde EstilosComunes
+
+// ── Footer de salarios ──────────────────────────────────────────────────────
+
+const SalaryFooter = styled.footer`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+`;
+
+const SalaryFooterLabel = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+`;
+
+const SalaryLinksRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+`;
+
+const SalaryLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #93c5fd;
+  background: rgba(147, 197, 253, 0.1);
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: rgba(147, 197, 253, 0.2);
+    border-color: rgba(147, 197, 253, 0.55);
+    color: #bfdbfe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(147, 197, 253, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
 
 export default Carreras;
