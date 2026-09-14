@@ -3,135 +3,135 @@ import styled, { keyframes } from 'styled-components';
 import { useNavigate, useLocation } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faRotateRight,
-    faGraduationCap,
-    faLightbulb,
-    faArrowLeft,
+  faRotateRight,
+  faGraduationCap,
+  faLightbulb,
+  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 
 // ── Datos de carreras por área ──────────────────────────────────────────────
 
 const careerData = {
-    'Tecnología e Innovación Digital': {
-        emoji: '💻',
-        color: '#60a5fa',
-        gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-        careers: ['Ingeniería de Software', 'Inteligencia Artificial', 'Ciberseguridad', 'Ciencia de Datos'],
-        strength: 'Pensamiento lógico, resolución de problemas complejos y visión tecnológica.',
-    },
-    'Creatividad, Arte y Diseño': {
-        emoji: '🎨',
-        color: '#f472b6',
-        gradient: 'linear-gradient(135deg, #ec4899, #f97316)',
-        careers: ['Diseño UX/UI', 'Animación Digital & 3D', 'Dirección Creativa', 'Diseño Multimedia'],
-        strength: 'Sensibilidad estética, pensamiento visual y comunicación creativa.',
-    },
-    'Negocios y Liderazgo Empresarial': {
-        emoji: '🚀',
-        color: '#34d399',
-        gradient: 'linear-gradient(135deg, #10b981, #3b82f6)',
-        careers: ['Administración y Emprendimiento', 'Marketing Estratégico', 'Finanzas Globales', 'Gestión de Proyectos'],
-        strength: 'Liderazgo, toma de decisiones estratégicas y orientación a resultados.',
-    },
-    'Ciencias de la Salud y Cuidado': {
-        emoji: '🩺',
-        color: '#a78bfa',
-        gradient: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-        careers: ['Medicina y Biotecnología', 'Psicología y Neurociencias', 'Nutrición y Rendimiento', 'Fisioterapia Avanzada'],
-        strength: 'Empatía, vocación de servicio y capacidad analítica científica.',
-    },
+  'Tecnología e Innovación Digital': {
+    emoji: '💻',
+    color: '#60a5fa',
+    gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    careers: ['Ingeniería de Software', 'Inteligencia Artificial', 'Ciberseguridad', 'Ciencia de Datos'],
+    strength: 'Pensamiento lógico, resolución de problemas complejos y visión tecnológica.',
+  },
+  'Creatividad, Arte y Diseño': {
+    emoji: '🎨',
+    color: '#f472b6',
+    gradient: 'linear-gradient(135deg, #ec4899, #f97316)',
+    careers: ['Diseño UX/UI', 'Animación Digital & 3D', 'Dirección Creativa', 'Diseño Multimedia'],
+    strength: 'Sensibilidad estética, pensamiento visual y comunicación creativa.',
+  },
+  'Negocios y Liderazgo Empresarial': {
+    emoji: '🚀',
+    color: '#34d399',
+    gradient: 'linear-gradient(135deg, #10b981, #3b82f6)',
+    careers: ['Administración y Emprendimiento', 'Marketing Estratégico', 'Finanzas Globales', 'Gestión de Proyectos'],
+    strength: 'Liderazgo, toma de decisiones estratégicas y orientación a resultados.',
+  },
+  'Ciencias de la Salud y Cuidado': {
+    emoji: '🩺',
+    color: '#a78bfa',
+    gradient: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+    careers: ['Medicina y Biotecnología', 'Psicología y Neurociencias', 'Nutrición y Rendimiento', 'Fisioterapia Avanzada'],
+    strength: 'Empatía, vocación de servicio y capacidad analítica científica.',
+  },
 };
 
 const defaultData = {
-    emoji: '⭐',
-    color: '#60a5fa',
-    gradient: 'linear-gradient(135deg, #60a5fa, #a78bfa)',
-    careers: ['Ingeniería de Software', 'Diseño UX/UI', 'Marketing Estratégico', 'Psicología'],
-    strength: 'Adaptabilidad, pensamiento crítico y motivación para crecer constantemente.',
+  emoji: '⭐',
+  color: '#60a5fa',
+  gradient: 'linear-gradient(135deg, #60a5fa, #a78bfa)',
+  careers: ['Ingeniería de Software', 'Diseño UX/UI', 'Marketing Estratégico', 'Psicología'],
+  strength: 'Adaptabilidad, pensamiento crítico y motivación para crecer constantemente.',
 };
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
 const Resultado = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const resultadoTexto = location.state?.resultado || 'Tecnología e Innovación Digital';
-    const data = careerData[resultadoTexto] || defaultData;
+  const resultadoTexto = location.state?.resultado || 'Tecnología e Innovación Digital';
+  const data = careerData[resultadoTexto] || defaultData;
 
-    return (
-        <Container>
+  return (
+    <Container>
 
-            {/* Barra superior */}
-            <TopBar>
-                <BackButton onClick={() => navigate('/preguntas')} type="button" aria-label="Volver">
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                </BackButton>
-                <TopBadge>Resultado vocacional</TopBadge>
-            </TopBar>
+      {/* Barra superior */}
+      <TopBar>
+        <BackButton onClick={() => navigate('/preguntas')} type="button" aria-label="Volver">
+          <FontAwesomeIcon icon={faArrowLeft} />
+        </BackButton>
+        <TopBadge>Resultado vocacional</TopBadge>
+      </TopBar>
 
-            {/* Gráfica de pastel de las 4 Áreas */}
-            <ResultCard>
-                <CardHeader>
-                    <CardLabel>Tu perfil se enfoca más en:</CardLabel>
-                    <AreaTitle>Área 1: Físico-Matemáticas</AreaTitle>
-                </CardHeader>
+      {/* Gráfica de pastel de las 4 Áreas */}
+      <ResultCard>
+        <CardHeader>
+          <CardLabel>Tu perfil se enfoca más en:</CardLabel>
+          <AreaTitle>Área 1: Físico-Matemáticas</AreaTitle>
+        </CardHeader>
 
-                <ChartWrapper>
-                    <PieChart />
-                    <LegendContainer>
-                        <LegendItem>
-                            <ColorDot $color="#3b82f6" />
-                            <span>Área 1: Físico-Matemáticas</span>
-                        </LegendItem>
-                        <LegendItem>
-                            <ColorDot $color="#ec4899" />
-                            <span>Área 2: Biológicas y Salud</span>
-                        </LegendItem>
-                        <LegendItem>
-                            <ColorDot $color="#10b981" />
-                            <span>Área 3: Ciencias Sociales</span>
-                        </LegendItem>
-                        <LegendItem>
-                            <ColorDot $color="#f59e0b" />
-                            <span>Área 4: Humanidades y Artes</span>
-                        </LegendItem>
-                    </LegendContainer>
-                </ChartWrapper>
-            </ResultCard>
+        <ChartWrapper>
+          <PieChart />
+          <LegendContainer>
+            <LegendItem>
+              <ColorDot $color="#3b82f6" />
+              <span>Área 1: Físico-Matemáticas</span>
+            </LegendItem>
+            <LegendItem>
+              <ColorDot $color="#ec4899" />
+              <span>Área 2: Biológicas y Salud</span>
+            </LegendItem>
+            <LegendItem>
+              <ColorDot $color="#10b981" />
+              <span>Área 3: Ciencias Sociales</span>
+            </LegendItem>
+            <LegendItem>
+              <ColorDot $color="#f59e0b" />
+              <span>Área 4: Humanidades y Artes</span>
+            </LegendItem>
+          </LegendContainer>
+        </ChartWrapper>
+      </ResultCard>
 
-            {/* Carreras recomendadas */}
-            <Section>
-                <SectionHeader>
-                    <SectionIcon $color={data.color}>
-                        <FontAwesomeIcon icon={faGraduationCap} />
-                    </SectionIcon>
-                    <SectionTitle>Ver carreras y universidades recomendadas</SectionTitle>
-                </SectionHeader>
-            </Section>
+      {/* Carreras recomendadas */}
+      <Section>
+        <SectionHeader>
+          <SectionIcon $color={data.color}>
+            <FontAwesomeIcon icon={faGraduationCap} />
+          </SectionIcon>
+          <SectionTitle>Ver carreras y universidades recomendadas</SectionTitle>
+        </SectionHeader>
+      </Section>
 
-            {/* Fortalezas */}
-            <StrengthCard>
-                <StrengthHeader>
-                    <FontAwesomeIcon icon={faLightbulb} />
-                    <span>Puntos clave</span>
-                </StrengthHeader>
-                <StrengthText>{data.strength}</StrengthText>
-            </StrengthCard>
+      {/* Fortalezas */}
+      <StrengthCard>
+        <StrengthHeader>
+          <FontAwesomeIcon icon={faLightbulb} />
+          <span>Puntos clave</span>
+        </StrengthHeader>
+        <StrengthText>{data.strength}</StrengthText>
+      </StrengthCard>
 
-            {/* Acciones */}
-            <ActionsArea>
-                <PrimaryButton onClick={() => navigate('/preguntas')} type="button">
-                    <FontAwesomeIcon icon={faRotateRight} />
-                    <span>Repetir test</span>
-                </PrimaryButton>
-                <GhostButton onClick={() => navigate('/')} type="button">
-                    Volver al inicio
-                </GhostButton>
-            </ActionsArea>
+      {/* Acciones */}
+      <ActionsArea>
+        <PrimaryButton onClick={() => navigate('/preguntas')} type="button">
+          <FontAwesomeIcon icon={faRotateRight} />
+          <span>Repetir test</span>
+        </PrimaryButton>
+        <GhostButton onClick={() => navigate('/')} type="button">
+          Volver al inicio
+        </GhostButton>
+      </ActionsArea>
 
-        </Container>
-    );
+    </Container>
+  );
 };
 
 // ── Animaciones ───────────────────────────────────────────────────────────────

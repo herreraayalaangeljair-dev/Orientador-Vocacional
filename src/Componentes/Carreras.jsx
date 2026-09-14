@@ -31,6 +31,7 @@ import {
   faChevronRight,
   faSpinner,
   faVideo,
+  faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 // ── Datos de áreas para filtros ─────────────────────────────────────────────
@@ -101,6 +102,7 @@ const Carreras = () => {
               salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo || '')),
               color: data.color || getColorForArea(collName),
               video: data.videoExplicativo || '',
+              fuenteDescripcion: data.fuentePrin || '',
             };
           });
           carrerasDataMap[collName] = docs;
@@ -228,6 +230,12 @@ const Carreras = () => {
                             <span>Descripción</span>
                           </InfoBlockHeader>
                           <InfoBlockText>{c.descripcion}</InfoBlockText>
+                          {c.fuenteDescripcion && (
+                            <FuenteLink href={c.fuenteDescripcion} target="_blank" rel="noopener noreferrer">
+                              <FontAwesomeIcon icon={faInfoCircle} />
+                              <span>Consultar fuente</span>
+                            </FuenteLink>
+                          )}
                           {c.video && (
                             <VideoLink href={c.video} target="_blank" rel="noopener noreferrer">
                               <FontAwesomeIcon icon={faVideo} />
@@ -237,10 +245,16 @@ const Carreras = () => {
                         </InfoBlock>
                       )}
                       {(c.salario !== '' && c.salario !== undefined && c.salario !== null) && (
-                        <SalarioBadge>
-                          <FontAwesomeIcon icon={faSackDollar} />
-                          <span>{c.salario} <SalarioSub>MXN / año</SalarioSub></span>
-                        </SalarioBadge>
+                        <SalarioWrapper>
+                          <SalarioBadge>
+                            <FontAwesomeIcon icon={faSackDollar} />
+                            <span>{c.salario} <SalarioSub>MXN / mes</SalarioSub></span>
+                          </SalarioBadge>
+                          <SalarioNota>
+                            <FontAwesomeIcon icon={faInfoCircle} />
+                            <span>Nota: El salario es un promedio, por lo que puede variar según diferentes factores.</span>
+                          </SalarioNota>
+                        </SalarioWrapper>
                       )}
                       <VerUniversidadesRow>
                         <VerUniversidadesBtn type="button">
@@ -470,6 +484,43 @@ const VideoLink = styled.a`
   }
 `;
 
+const FuenteLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #93c5fd;
+  background: rgba(147, 197, 253, 0.1);
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  align-self: flex-start;
+
+  &:hover {
+    background: rgba(147, 197, 253, 0.2);
+    border-color: rgba(147, 197, 253, 0.55);
+    color: #bfdbfe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(147, 197, 253, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const SalarioWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 4px;
+`;
+
 const SalarioBadge = styled.div`
   display: inline-flex;
   align-items: center;
@@ -488,6 +539,24 @@ const SalarioSub = styled.span`
   font-size: 0.64rem;
   font-weight: 500;
   opacity: 0.7;
+`;
+
+const SalarioNota = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+  max-width: 90%;
+  line-height: 1.3;
+  margin-left: 4px;
+
+  svg {
+    margin-top: 2px;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+  }
 `;
 
 const VerUniversidadesRow = styled.div`
