@@ -257,7 +257,7 @@ const Carreras = () => {
                         </SalarioWrapper>
                       )}
                       <VerUniversidadesRow>
-                        <VerUniversidadesBtn type="button">
+                        <VerUniversidadesBtn type="button" onClick={() => navigate('/universidades', { state: { carrera: c.nombre } })}>
                           <FontAwesomeIcon icon={faUniversity} /> Ver universidades
                         </VerUniversidadesBtn>
                       </VerUniversidadesRow>

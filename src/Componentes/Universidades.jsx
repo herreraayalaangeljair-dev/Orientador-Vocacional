@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from "firebase/firestore";
 import db from "../firebaseConfig/firebase";
 import styled, { keyframes } from 'styled-components';
+import { useLocation } from 'react-router';
 import {
   Container,
   TopBar,
@@ -209,6 +210,11 @@ const Universidades = () => {
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [universidades, setUniversidades] = useState([]);
+  const location = useLocation();
+  const carreraFistro = location.state?.carrera;
+
+
+
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -228,7 +234,17 @@ const Universidades = () => {
     return () => unsubscribe();
   }, []);
 
-  const filtered = universidades.filter((u) => {
+  const universidadesFiltradas = universidades.filter((unis) => {
+    if (carreraFistro) {
+      if (unis.carreras && Array.isArray(unis.carreras)) {
+        return unis.carreras.includes(carreraFistro);
+      }
+      return false;
+    }
+    return true;
+  });
+
+  const filtered = universidadesFiltradas.filter((u) => {
     const uTipo = normalizeStr(u.tipo);
     const selectedTipo = normalizeStr(tipo);
     const matchTipo = selectedTipo === 'todas' || uTipo === selectedTipo;
@@ -259,7 +275,7 @@ const Universidades = () => {
 
       {/* TopBar */}
       <TopBar>
-        <BackButton onClick={() => navigate('/resultado')} type="button" aria-label="Volver">
+        <BackButton onClick={() => navigate('/carreras')} type="button" aria-label="Volver">
           <FontAwesomeIcon icon={faArrowLeft} />
         </BackButton>
         <TopTitle>Universidades</TopTitle>
