@@ -136,9 +136,7 @@ const Carreras = () => {
     const normSearch = normalizeStr(search);
     const matchSearch =
       !normSearch ||
-      normalizeStr(c.nombre).includes(normSearch) ||
-      normalizeStr(c.descripcion).includes(normSearch) ||
-      normalizeStr(c.salario).includes(normSearch);
+      normalizeStr(c.nombre).includes(normSearch);
 
     return matchArea && matchSearch;
   });
