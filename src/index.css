@@ -1,37 +1,89 @@
-body {
-  margin: 0;
-  padding: 0;
-  background: #0a0a0a;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap');
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Colores de área */
+  --area1: #4f7df0;   /* Físico-Matemáticas   → azul  */
+  --area2: #8b5cf6;   /* Biológicas y Salud   → morado */
+  --area3: #17b083;   /* Ciencias Sociales    → verde  */
+  --area4: #f0578e;   /* Humanidades y Artes  → rosa   */
+
+  /* Paleta neutra — modo claro */
+  --bg:       #f6f4fb;
+  --panel:    #ffffff;
+  --ink:      #201c2c;
+  --ink-soft: #635c78;
+  --ink-faint:#9891ac;
+  --line:     rgba(32,28,44,0.08);
+  --shadow:   0 10px 30px rgba(43,32,74,0.10);
+
+  /* Chip de salario (fijo) */
+  --salary-color: #17b083;
+  --salary-bg:    rgba(23,176,131,0.12);
+
+  /* Backdrop del sheet */
+  --backdrop: rgba(15,12,24,0.5);
+
+  /* Tipografías */
+  --font-display: 'Poppins', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
 }
 
+/* ── Modo oscuro automático (o manual con data-theme="dark") ─────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #15121f;
+    --panel:    #211c30;
+    --ink:      #f3f1fa;
+    --ink-soft: #b3abcb;
+    --ink-faint:#776f92;
+    --line:     rgba(255,255,255,0.09);
+    --shadow:   0 10px 30px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:       #15121f;
+  --panel:    #211c30;
+  --ink:      #f3f1fa;
+  --ink-soft: #b3abcb;
+  --ink-faint:#776f92;
+  --line:     rgba(255,255,255,0.09);
+  --shadow:   0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* ── Reset base ───────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  margin: 0;
+  padding: 0;
+  background: #15121f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Contenedor externo que simula el entorno del celular */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* ── Wrapper del celular ──────────────────────────────────────────────────── */
 .phone-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #0a0a0a;
+  background: #15121f;
 }
 
-/* Pantalla del celular: dimensiones estándar móvil 9:16 */
+/* Pantalla del celular: 9:16 */
 .phone-screen {
   position: relative;
   width: 390px;
@@ -39,40 +91,38 @@ code {
   overflow: hidden;
   border-radius: 0px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  background-color: #15121f;
 }
 
 /* Video de fondo */
 .bg-video {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   z-index: 0;
 }
 
-/* Overlay oscuro para legibilidad del texto */
+/* Overlay sutil para legibilidad — permite ver el fondo morado */
 .bg-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.25) 0%,
-    rgba(0, 0, 0, 0.55) 50%,
-    rgba(0, 0, 0, 0.75) 100%
+    135deg,
+    rgba(21,18,31,0.45) 0%,
+    rgba(33,28,48,0.30) 50%,
+    rgba(21,18,31,0.55) 100%
   );
   z-index: 1;
 }
 
-/* En pantallas móviles reales, ocupar toda la pantalla */
+/* Móviles reales: pantalla completa */
 @media (max-width: 430px) {
   .phone-wrapper {
     display: block;
     min-height: 100vh;
-    background: #000;
+    background: #15121f;
   }
-
   .phone-screen {
     width: 100vw;
     height: 100dvh;

@@ -246,7 +246,7 @@ const ProgressBarTrack = styled.div`
 
 const ProgressBarFill = styled.div`
   height: 100%;
-  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  background: linear-gradient(90deg, var(--area1, #4f7df0), var(--area2, #8b5cf6));
   border-radius: 10px;
   animation: ${progressGrow} 0.8s ease-out forwards;
 `;
@@ -386,7 +386,9 @@ const OptionIconWrapper = styled.div`
   justify-content: center;
   font-size: 1rem;
   background: ${({ $active }) =>
-        $active ? 'linear-gradient(135deg, #60a5fa, #a78bfa)' : 'rgba(255, 255, 255, 0.12)'};
+        $active
+          ? 'linear-gradient(135deg, var(--area1, #4f7df0), var(--area2, #8b5cf6))'
+          : 'rgba(255, 255, 255, 0.12)'};
   color: #ffffff;
   flex-shrink: 0;
   transition: all 0.25s ease;
@@ -415,7 +417,7 @@ const OptionLabel = styled.span`
 `;
 
 const CheckIcon = styled.span`
-  color: #60a5fa;
+  color: var(--area1, #4f7df0);
   font-size: 1.1rem;
   animation: ${fadeSlideUp} 0.25s ease-out;
 `;

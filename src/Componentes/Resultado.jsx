@@ -14,29 +14,29 @@ import {
 const careerData = {
   'Tecnología e Innovación Digital': {
     emoji: '💻',
-    color: '#60a5fa',
-    gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: '#4f7df0',
+    gradient: 'linear-gradient(135deg, #4f7df0, #8b5cf6)',
     careers: ['Ingeniería de Software', 'Inteligencia Artificial', 'Ciberseguridad', 'Ciencia de Datos'],
     strength: 'Pensamiento lógico, resolución de problemas complejos y visión tecnológica.',
   },
   'Creatividad, Arte y Diseño': {
     emoji: '🎨',
-    color: '#f472b6',
-    gradient: 'linear-gradient(135deg, #ec4899, #f97316)',
+    color: '#f0578e',
+    gradient: 'linear-gradient(135deg, #f0578e, #8b5cf6)',
     careers: ['Diseño UX/UI', 'Animación Digital & 3D', 'Dirección Creativa', 'Diseño Multimedia'],
     strength: 'Sensibilidad estética, pensamiento visual y comunicación creativa.',
   },
   'Negocios y Liderazgo Empresarial': {
     emoji: '🚀',
-    color: '#34d399',
-    gradient: 'linear-gradient(135deg, #10b981, #3b82f6)',
+    color: '#17b083',
+    gradient: 'linear-gradient(135deg, #17b083, #4f7df0)',
     careers: ['Administración y Emprendimiento', 'Marketing Estratégico', 'Finanzas Globales', 'Gestión de Proyectos'],
     strength: 'Liderazgo, toma de decisiones estratégicas y orientación a resultados.',
   },
   'Ciencias de la Salud y Cuidado': {
     emoji: '🩺',
-    color: '#a78bfa',
-    gradient: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+    color: '#8b5cf6',
+    gradient: 'linear-gradient(135deg, #8b5cf6, #f0578e)',
     careers: ['Medicina y Biotecnología', 'Psicología y Neurociencias', 'Nutrición y Rendimiento', 'Fisioterapia Avanzada'],
     strength: 'Empatía, vocación de servicio y capacidad analítica científica.',
   },
@@ -44,8 +44,8 @@ const careerData = {
 
 const defaultData = {
   emoji: '⭐',
-  color: '#60a5fa',
-  gradient: 'linear-gradient(135deg, #60a5fa, #a78bfa)',
+  color: '#4f7df0',
+  gradient: 'linear-gradient(135deg, #4f7df0, #8b5cf6)',
   careers: ['Ingeniería de Software', 'Diseño UX/UI', 'Marketing Estratégico', 'Psicología'],
   strength: 'Adaptabilidad, pensamiento crítico y motivación para crecer constantemente.',
 };
@@ -81,19 +81,19 @@ const Resultado = () => {
           <PieChart />
           <LegendContainer>
             <LegendItem>
-              <ColorDot $color="#3b82f6" />
+              <ColorDot $color="var(--area1)" />
               <span>Área 1: Físico-Matemáticas</span>
             </LegendItem>
             <LegendItem>
-              <ColorDot $color="#ec4899" />
+              <ColorDot $color="var(--area2)" />
               <span>Área 2: Biológicas y Salud</span>
             </LegendItem>
             <LegendItem>
-              <ColorDot $color="#10b981" />
+              <ColorDot $color="var(--area3)" />
               <span>Área 3: Ciencias Sociales</span>
             </LegendItem>
             <LegendItem>
-              <ColorDot $color="#f59e0b" />
+              <ColorDot $color="var(--area4)" />
               <span>Área 4: Humanidades y Artes</span>
             </LegendItem>
           </LegendContainer>
@@ -163,7 +163,7 @@ const Container = styled.div`
   justify-content: space-between;
   padding: 22px 22px 28px;
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
   gap: 10px;
   overflow-y: auto;
 
@@ -281,17 +281,15 @@ const PieChart = styled.div`
   height: 110px;
   min-width: 110px;
   border-radius: 50%;
-  /* Gráfica de pastel generada con conic-gradient simulando las 4 áreas */
   background: conic-gradient(
-    #3b82f6 0deg 110deg,
-    #ec4899 110deg 210deg,
-    #10b981 210deg 300deg,
-    #f59e0b 300deg 360deg
+    var(--area1) 0deg 110deg,
+    var(--area2) 110deg 210deg,
+    var(--area3) 210deg 300deg,
+    var(--area4) 300deg 360deg
   );
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   position: relative;
 
-  /* Efecto decorativo interno para simular gráfica tipo dona moderna */
   &::after {
     content: '';
     position: absolute;
@@ -375,7 +373,7 @@ const StrengthHeader = styled.div`
   gap: 7px;
   font-size: 0.73rem;
   font-weight: 700;
-  color: #93c5fd;
+  color: var(--area1);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 5px;

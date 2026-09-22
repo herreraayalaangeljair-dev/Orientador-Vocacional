@@ -79,7 +79,7 @@ const TarjetaUniversidad = ({ u, isOpen, toggleExpand }) => {
   }, [isOpen, u.id]);
 
   const normTipo = normalizeStr(u.tipo);
-  const defaultColor = normTipo === 'publica' ? '#3b82f6' : normTipo === 'privada' ? '#9333ea' : '#059669';
+  const defaultColor = normTipo === 'publica' ? '#4f7df0' : normTipo === 'privada' ? '#8b5cf6' : '#17b083';
   const cardColor = u.color || defaultColor;
 
   // Detectar si u.logo, u.imagen o u.emoji contiene un link de Cloudinary/http

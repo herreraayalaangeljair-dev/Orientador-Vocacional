@@ -13,8 +13,8 @@ export const shimmerAnim = keyframes`
 `;
 
 export const pulseGlow = keyframes`
-  0%, 100% { box-shadow: 0 0 0px 0px rgba(96,165,250,0.0); }
-  50%       { box-shadow: 0 0 10px 3px rgba(96,165,250,0.35); }
+  0%, 100% { box-shadow: 0 0 0px 0px rgba(79,125,240,0.0); }
+  50%       { box-shadow: 0 0 10px 3px rgba(79,125,240,0.35); }
 `;
 
 // ── Layout ────────────────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ export const Container = styled.div`
   flex-direction: column;
   padding: 20px 20px 12px;
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
   gap: 12px;
   overflow: hidden;
 `;
@@ -76,8 +76,11 @@ export const TopTitle = styled.h1`
 `;
 
 export const CountBadge = styled.span`
-  background: linear-gradient(135deg, rgba(37,99,235,0.85) 0%, rgba(109,40,217,0.80) 100%);
-  border: 1.5px solid rgba(167,139,250,0.9);
+  background: linear-gradient(135deg,
+    rgba(79,125,240,0.85) 0%,
+    rgba(139,92,246,0.80) 100%
+  );
+  border: 1.5px solid rgba(139,92,246,0.9);
   border-radius: 50px;
   color: #ffffff;
   font-size: 0.8rem;
@@ -86,7 +89,7 @@ export const CountBadge = styled.span`
   letter-spacing: 0.04em;
   backdrop-filter: blur(8px);
   animation: ${pulseGlow} 3s ease-in-out infinite;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 12px rgba(139,92,246,0.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 12px rgba(79,125,240,0.45);
 `;
 
 // ── Buscador ──────────────────────────────────────────────────────────────────
@@ -156,14 +159,23 @@ export const FilterChip = styled.button`
   transition: all 0.2s ease;
   flex-shrink: 0;
 
-  background: ${({ $active }) =>
-    $active ? 'rgba(255, 255, 255, 0.28)' : 'rgba(255, 255, 255, 0.08)'};
+  background: ${({ $active, $areaColor }) =>
+    $active
+      ? $areaColor ? `${$areaColor}28` : 'rgba(79,125,240,0.22)'
+      : 'rgba(255, 255, 255, 0.08)'};
   border: 1px solid
-    ${({ $active }) =>
-    $active ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.16)'};
-  color: ${({ $active }) => ($active ? '#fff' : 'rgba(255, 255, 255, 0.7)')};
-  box-shadow: ${({ $active }) =>
-    $active ? '0 2px 12px rgba(255, 255, 255, 0.15)' : 'none'};
+    ${({ $active, $areaColor }) =>
+      $active
+        ? $areaColor || 'rgba(79,125,240,0.8)'
+        : 'rgba(255, 255, 255, 0.16)'};
+  color: ${({ $active, $areaColor }) =>
+    $active
+      ? $areaColor || '#fff'
+      : 'rgba(255, 255, 255, 0.7)'};
+  box-shadow: ${({ $active, $areaColor }) =>
+    $active
+      ? `0 2px 12px ${$areaColor ? $areaColor + '44' : 'rgba(79,125,240,0.25)'}`
+      : 'none'};
 
   &:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
 `;

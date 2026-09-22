@@ -38,25 +38,25 @@ import {
 // ── Datos de áreas para filtros ─────────────────────────────────────────────
 
 const AREAS = [
-  { id: 'todas', label: 'Todas', icon: faGraduationCap },
-  { id: 'Area1', label: 'Área 1: Físico-Matemáticas', icon: faLaptopCode },
-  { id: 'Area2', label: 'Área 2: Biológicas y Salud', icon: faStethoscope },
-  { id: 'Area3', label: 'Área 3: Ciencias Sociales', icon: faBriefcase },
-  { id: 'Area4', label: 'Área 4: Humanidades y Artes', icon: faPalette },
+  { id: 'todas', label: 'Todas', icon: faGraduationCap, color: null },
+  { id: 'Area1', label: 'Área 1: Físico-Matemáticas', icon: faLaptopCode, color: '#4f7df0' },
+  { id: 'Area2', label: 'Área 2: Biológicas y Salud', icon: faStethoscope, color: '#8b5cf6' },
+  { id: 'Area3', label: 'Área 3: Ciencias Sociales', icon: faBriefcase, color: '#17b083' },
+  { id: 'Area4', label: 'Área 4: Humanidades y Artes', icon: faPalette, color: '#f0578e' },
 ];
 
 const getColorForArea = (collName) => {
   switch ((collName || '').toLowerCase()) {
     case 'area1':
-      return '#60a5fa'; // Azul
+      return '#4f7df0'; // Azul — Físico-Matemáticas
     case 'area2':
-      return '#a78bfa'; // Morado
+      return '#8b5cf6'; // Morado — Biológicas y Salud
     case 'area3':
-      return '#34d399'; // Verde
+      return '#17b083'; // Verde — Ciencias Sociales
     case 'area4':
-      return '#f472b6'; // Rosa
+      return '#f0578e'; // Rosa — Humanidades y Artes
     default:
-      return '#fbbf24'; // Amarillo
+      return '#4f7df0'; // Fallback azul
   }
 };
 
@@ -105,6 +105,7 @@ const Carreras = () => {
               video: data.videoExplicativo,
               fuenteDescripcion: data.fuentePrin,
               salarioAdvertencia: data.salarioAdvertencia,
+              esParaMi: data.esParaMi,
             };
           });
           carrerasDataMap[collName] = docs;
@@ -173,6 +174,7 @@ const Carreras = () => {
           <FilterChip
             key={a.id}
             $active={activeArea === a.id}
+            $areaColor={a.color}
             onClick={() => setActiveArea(a.id)}
             type="button"
           >
@@ -213,36 +215,27 @@ const Carreras = () => {
                     </ChevronIcon>
                   </CardHeaderRow>
 
-                  {/* Vista preliminar simple */}
-                  {!isOpen && c.salario && (
+                  {/* Vista preliminar — descripción corta */}
+                  {!isOpen && c.descripcion && (
                     <CarreraFooter>
-                      <DuracionChip><FontAwesomeIcon icon={faSackDollar} /> {c.salario}</DuracionChip>
+                      <DuracionChip $color={c.color}>
+                        <FontAwesomeIcon icon={faGraduationCap} />
+                        <span>{c.descripcion}</span>
+                      </DuracionChip>
                     </CarreraFooter>
                   )}
 
                   {/* Vista desplegada con detalles completos */}
                   {isOpen && (
                     <ExpandedContent>
-                      {c.descripcion !== '' && (
+                      {c.esParaMi !== '' && (
                         <InfoBlock>
                           <InfoBlockHeader>
                             <FontAwesomeIcon icon={faGraduationCap} />
-                            <span>Descripción</span>
+                            <span>¿Es para mí?</span>
                           </InfoBlockHeader>
-                          <InfoBlockText>{c.descripcion}</InfoBlockText>
-                          <button onClick={() => navigate('/ver-mas-carrera')}>Ver más</button>
-                          {c.fuenteDescripcion && (
-                            <FuenteLink href={c.fuenteDescripcion} target="_blank" rel="noopener noreferrer">
-                              <FontAwesomeIcon icon={faInfoCircle} />
-                              <span>Consultar fuente</span>
-                            </FuenteLink>
-                          )}
-                          {c.video && (
-                            <VideoLink href={c.video} target="_blank" rel="noopener noreferrer">
-                              <FontAwesomeIcon icon={faVideo} />
-                              <span>Video explicativo</span>
-                            </VideoLink>
-                          )}
+                          <InfoBlockText>{c.esParaMi}</InfoBlockText>
+
                         </InfoBlock>
                       )}
                       {c.salarioAdvertencia !== null && c.salarioAdvertencia !== '' && c.salarioAdvertencia !== undefined ? (
@@ -262,12 +255,12 @@ const Carreras = () => {
                             </SalarioBadge>
                             <SalarioNota>
                               <FontAwesomeIcon icon={faInfoCircle} />
-                              <span>Nota: El sueldo mostrado es un promedio base de México y puede variar según factores como la empresa, experiencia y puesto.</span>
+                              <span>Nota: El sueldo mostrado es un promedio base de México y puede variar.</span>
                             </SalarioNota>
                           </SalarioWrapper>
                         )}
                       <VerUniversidadesRow>
-                        <VerUniversidadesBtn type="button" onClick={() => navigate('/universidades', { state: { carrera: c.nombre } })}>
+                        <VerUniversidadesBtn type="button" $color={c.color} onClick={() => navigate('/universidades', { state: { carrera: c.nombre } })}>
                           <FontAwesomeIcon icon={faUniversity} /> Ver universidades
                         </VerUniversidadesBtn>
                       </VerUniversidadesRow>
@@ -323,6 +316,7 @@ const CarrerasList = styled.div`
   overflow-y: auto;
   padding-right: 4px;
   animation: ${fadeUp} 0.5s 0.15s ease-out both;
+  font-family: var(--font-body);
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -346,7 +340,7 @@ const LoadingState = styled.div`
   .spin {
     animation: ${spin} 1s linear infinite;
     font-size: 1.6rem;
-    color: #60a5fa;
+    color: var(--area1);
   }
 `;
 
@@ -407,15 +401,39 @@ const CarreraName = styled.p`
 
 const CarreraFooter = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 4px;
+  flex-direction: column;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
-const DuracionChip = styled.span`
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 600;
+const DuracionChip = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 0.80rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 400;
+  line-height: 1.45;
+
+  /* Truncado elegante en 3 líneas máximo */
+  span {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Ícono: color de área como ancla visual */
+  svg {
+    color: ${({ $color }) => $color || 'var(--area1)'};
+    font-size: 0.72rem;
+    margin-top: 3px;   /* alinea con la primera línea del texto */
+    flex-shrink: 0;
+    opacity: 0.9;
+  }
 `;
 
 const ChevronIcon = styled.span`
@@ -569,13 +587,13 @@ const SalarioBadge = styled.div`
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  background: rgba(52, 211, 153, 0.14);
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  background: var(--salary-bg, rgba(23,176,131,0.12));
+  border: 1px solid rgba(23,176,131,0.3);
   border-radius: 50px;
   padding: 5px 12px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #6ee7b7;
+  color: var(--salary-color, #17b083);
 `;
 
 const SalarioSub = styled.span`
@@ -587,18 +605,25 @@ const SalarioSub = styled.span`
 const SalarioNota = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-style: italic;
-  max-width: 90%;
-  line-height: 1.3;
-  margin-left: 4px;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(79, 125, 240, 0.08);   /* tono área1 muy sutil */
+  border: 1px solid rgba(79, 125, 240, 0.20);
+  font-size: 0.74rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  color: rgba(255, 255, 255, 0.72);       /* contraste ≥4:1 sobre fondo oscuro */
+  font-style: normal;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
 
   svg {
     margin-top: 2px;
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
+    color: var(--area1, #4f7df0);          /* ícono informativo = azul área1 */
+    flex-shrink: 0;
+    opacity: 1;
   }
 `;
 
@@ -617,23 +642,21 @@ const VerUniversidadesBtn = styled.button`
   font-size: 0.72rem;
   font-weight: 800;
   cursor: pointer;
-  border: none;
-  background: linear-gradient(135deg, #7c3aed, #2563eb);
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.45);
+  border: 1.5px solid ${({ $color }) => $color || 'var(--area1)'};
+  background: ${({ $color }) => $color ? `${$color}22` : 'rgba(79,125,240,0.13)'};
+  color: ${({ $color }) => $color || 'var(--area1)'};
+  box-shadow: ${({ $color }) => $color ? `0 2px 12px ${$color}44` : '0 2px 12px rgba(79,125,240,0.28)'};
   transition: all 0.22s ease;
   letter-spacing: 0.3px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #6d28d9, #1d4ed8);
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.65);
+    background: ${({ $color }) => $color ? `${$color}33` : 'rgba(79,125,240,0.22)'};
+    box-shadow: ${({ $color }) => $color ? `0 4px 20px ${$color}66` : '0 4px 20px rgba(79,125,240,0.45)'};
     transform: translateY(-2px) scale(1.03);
   }
 
   &:active {
     transform: translateY(0) scale(1);
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
   }
 `;
 
