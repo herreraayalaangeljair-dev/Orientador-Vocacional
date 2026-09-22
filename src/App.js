@@ -7,6 +7,7 @@ import Resultado from './Componentes/Resultado';
 import Carreras from './Componentes/Carreras';
 import Universidades from './Componentes/Universidades';
 import { Route, Routes } from 'react-router';
+import VerMasCarrera from './Componentes/VerMasCarrera';
 function App() {
   return (
     <div className="phone-wrapper">
@@ -31,6 +32,7 @@ function App() {
           <Route path="/resultado" element={<Resultado />} />
           <Route path="/carreras" element={<Carreras />} />
           <Route path="/universidades" element={<Universidades />} />
+          <Route path="/ver-mas-carrera" element={<VerMasCarrera />} />
         </Routes>
       </div>
     </div>

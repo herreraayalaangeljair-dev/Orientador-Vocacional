@@ -23,6 +23,7 @@ import {
   faSearch,
   faGraduationCap,
   faPalette,
+  faExclamationTriangle,
   faBriefcase,
   faUniversity,
   faStethoscope,
@@ -98,11 +99,12 @@ const Carreras = () => {
               docId: doc.id,
               areaId: collName,
               nombre: data.nombre || data.Nombre || data.carrera || data.Carrera || data.titulo || doc.id,
-              descripcion: data.descripcion || data.Descripcion || data.desc || data.campo || data.Campo || '',
-              salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo || '')),
+              descripcion: data.descripcion || data.Descripcion || data.desc || data.campo || data.Campo,
+              salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo)),
               color: data.color || getColorForArea(collName),
-              video: data.videoExplicativo || '',
-              fuenteDescripcion: data.fuentePrin || '',
+              video: data.videoExplicativo,
+              fuenteDescripcion: data.fuentePrin,
+              salarioAdvertencia: data.salarioAdvertencia,
             };
           });
           carrerasDataMap[collName] = docs;
@@ -228,6 +230,7 @@ const Carreras = () => {
                             <span>Descripción</span>
                           </InfoBlockHeader>
                           <InfoBlockText>{c.descripcion}</InfoBlockText>
+                          <button onClick={() => navigate('/ver-mas-carrera')}>Ver más</button>
                           {c.fuenteDescripcion && (
                             <FuenteLink href={c.fuenteDescripcion} target="_blank" rel="noopener noreferrer">
                               <FontAwesomeIcon icon={faInfoCircle} />
@@ -242,18 +245,27 @@ const Carreras = () => {
                           )}
                         </InfoBlock>
                       )}
-                      {(c.salario !== '' && c.salario !== undefined && c.salario !== null) && (
-                        <SalarioWrapper>
-                          <SalarioBadge>
-                            <FontAwesomeIcon icon={faSackDollar} />
-                            <span>{c.salario} <SalarioSub>MXN / mes</SalarioSub></span>
-                          </SalarioBadge>
-                          <SalarioNota>
-                            <FontAwesomeIcon icon={faInfoCircle} />
-                            <span>Nota: El salario es un promedio, por lo que puede variar según diferentes factores.</span>
-                          </SalarioNota>
-                        </SalarioWrapper>
-                      )}
+                      {c.salarioAdvertencia !== null && c.salarioAdvertencia !== '' && c.salarioAdvertencia !== undefined ? (
+                        <WarningBlock>
+                          <WarningBlockHeader>
+                            <FontAwesomeIcon icon={faExclamationTriangle} />
+                            <span>Información salarial</span>
+                          </WarningBlockHeader>
+                          <WarningBlockText>{c.salarioAdvertencia}</WarningBlockText>
+                        </WarningBlock>
+                      )
+                        : (c.salario !== '' && c.salario !== undefined && c.salario !== null) && (
+                          <SalarioWrapper>
+                            <SalarioBadge>
+                              <FontAwesomeIcon icon={faSackDollar} />
+                              <span>{c.salario} <SalarioSub>MXN / mes</SalarioSub></span>
+                            </SalarioBadge>
+                            <SalarioNota>
+                              <FontAwesomeIcon icon={faInfoCircle} />
+                              <span>Nota: El sueldo mostrado es un promedio base de México y puede variar según factores como la empresa, experiencia y puesto.</span>
+                            </SalarioNota>
+                          </SalarioWrapper>
+                        )}
                       <VerUniversidadesRow>
                         <VerUniversidadesBtn type="button" onClick={() => navigate('/universidades', { state: { carrera: c.nombre } })}>
                           <FontAwesomeIcon icon={faUniversity} /> Ver universidades
@@ -448,6 +460,39 @@ const InfoBlockHeader = styled.div`
 const InfoBlockText = styled.p`
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  line-height: 1.45;
+`;
+
+const WarningBlock = styled.div`
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-left: 3px solid #fbbf24;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const WarningBlockHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+
+  svg {
+    font-size: 0.7rem;
+  }
+`;
+
+const WarningBlockText = styled.p`
+  font-size: 0.78rem;
+  color: rgba(251, 191, 36, 0.9);
   margin: 0;
   line-height: 1.45;
 `;
