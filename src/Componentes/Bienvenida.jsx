@@ -2,7 +2,8 @@
 import styled, { keyframes } from 'styled-components';
 import logo from '../Imagenes/logo.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStopwatch, faGraduationCap, faUniversity, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faStopwatch, faGraduationCap, faUniversity, faArrowRight, faPlay, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { useNavigate } from 'react-router';
 
 const Bienvenida = () => {
@@ -18,16 +19,32 @@ const Bienvenida = () => {
         <Description>Mírame 👇</Description>
       </Header>
 
-      {/* ── Video ── */}
-      <VideoWrapper>
-        <iframe
-          src="https://www.youtube.com/embed/fxG0ixYUAOc?si=CmIOBPXYqUMqxEgg"
-          title="YouTube video player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
-      </VideoWrapper>
+      {/* ── Video Card (Heurísticas Nielsen & Tognazzini) ── */}
+      <VideoCardContainer>
+        <VideoLink
+          href="https://youtube.com/shorts/fxG0ixYUAOc?si=gBipac_N94P6jlGN"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ver video de introducción en YouTube Shorts (se abre en una nueva pestaña)"
+        >
+          <PlayIconWrapper>
+            <FontAwesomeIcon icon={faYoutube} />
+          </PlayIconWrapper>
+
+          <VideoInfo>
+            <VideoBadge>
+              <span>Short</span>
+              <FontAwesomeIcon icon={faExternalLinkAlt} style={{ fontSize: '0.6rem' }} />
+            </VideoBadge>
+            <VideoTitle>Video de introducción</VideoTitle>
+            <VideoSubtitle>Conoce cómo funciona el test en 1 min</VideoSubtitle>
+          </VideoInfo>
+
+          <ActionArrow>
+            <FontAwesomeIcon icon={faPlay} />
+          </ActionArrow>
+        </VideoLink>
+      </VideoCardContainer>
 
       {/* ── Features ── */}
       <FeaturesPreview>
@@ -164,39 +181,148 @@ const Title = styled.h1`
 
 const Description = styled.p`
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.5;
-  margin: 0;
-  position: relative;
-  top: 50px;
+  margin: 4px 0 0 0;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 `;
 
-// ── Video ─────────────────────────────────────────────────────────────────────
+// ── Tarjeta de Video (Principios Tognazzini & Nielsen) ─────────────────────────
 
-const VideoWrapper = styled.div`
+const VideoCardContainer = styled.div`
   width: 100%;
-  position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: 16px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.55),
-    0 0 20px rgba(96, 165, 250, 0.12);
+  max-width: 380px;
+  margin: 4px 0;
   animation: ${fadeSlideUp} 0.8s 0.15s ease-out both;
+`;
 
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
+const VideoLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  text-decoration: none;
+  border-radius: 18px;
+
+  /* Glassmorphism y Visual Integrity (Nielsen #8 & Tognazzini Estética) */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  /* Feedback Inmediato e Interacción (Nielsen #1 & Tognazzini State Visibility) */
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  outline: none;
+
+  /* Ley de Fitts: Tamaño Mínimo Recomendado (Tognazzini Target Area) */
+  min-height: 64px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 78, 78, 0.5);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow:
+      0 12px 28px rgba(255, 0, 0, 0.22),
+      0 0 16px rgba(255, 255, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Accesibilidad de Teclado (Nielsen #1 & Protecciones Tognazzini) */
+  &:focus-visible {
+    border-color: #ff4e4e;
+    box-shadow: 0 0 0 3px rgba(255, 78, 78, 0.5);
+  }
+`;
+
+const PlayIconWrapper = styled.div`
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  ${VideoLink}:hover & {
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(255, 0, 0, 0.6);
+  }
+`;
+
+const VideoInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+  overflow: hidden;
+`;
+
+const VideoBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff7b7b;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const VideoTitle = styled.span`
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+`;
+
+const VideoSubtitle = styled.span`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 400;
+`;
+
+const ActionArrow = styled.div`
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  ${VideoLink}:hover & {
+    color: #ffffff;
+    background: rgba(255, 0, 0, 0.8);
+    transform: translateX(3px);
   }
 `;
 
