@@ -31,7 +31,6 @@ import {
   faLaptopCode,
   faChevronRight,
   faSpinner,
-  faVideo,
   faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -98,14 +97,14 @@ const Carreras = () => {
               id: `${collName}_${doc.id}`,
               docId: doc.id,
               areaId: collName,
-              nombre: data.nombre || data.Nombre || data.carrera || data.Carrera || data.titulo || doc.id,
-              descripcion: data.descripcion || data.Descripcion || data.desc || data.campo || data.Campo,
+              nombre: doc.id,
+              descripcion: data.descripcion,
               salario: data.salario !== undefined ? data.salario : (data.Salario !== undefined ? data.Salario : (data.sueldo || data.Sueldo)),
               color: data.color || getColorForArea(collName),
               video: data.videoExplicativo,
               fuenteDescripcion: data.fuentePrin,
               salarioAdvertencia: data.salarioAdvertencia,
-              esParaMi: data.esParaMi,
+              esParaMi: data.esParaMi
             };
           });
           carrerasDataMap[collName] = docs;
@@ -259,11 +258,14 @@ const Carreras = () => {
                             </SalarioNota>
                           </SalarioWrapper>
                         )}
-                      <VerUniversidadesRow>
-                        <VerUniversidadesBtn type="button" $color={c.color} onClick={() => navigate('/universidades', { state: { carrera: c.nombre } })}>
-                          <FontAwesomeIcon icon={faUniversity} /> Ver universidades
-                        </VerUniversidadesBtn>
-                      </VerUniversidadesRow>
+
+                      {/* Boton descubre mas */}
+                      <DescubreMasRow>
+                        <DescubreMasBtn>
+                          <FontAwesomeIcon icon={faUniversity} /> Descubre mas
+                        </DescubreMasBtn>
+                      </DescubreMasRow>
+
                     </ExpandedContent>
                   )}
                 </CardBody>

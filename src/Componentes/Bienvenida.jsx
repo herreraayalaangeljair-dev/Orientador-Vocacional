@@ -37,7 +37,7 @@ const Bienvenida = () => {
               <FontAwesomeIcon icon={faExternalLinkAlt} style={{ fontSize: '0.6rem' }} />
             </VideoBadge>
             <VideoTitle>Video de introducción</VideoTitle>
-            <VideoSubtitle>Conoce cómo funciona el test en 1 min</VideoSubtitle>
+            <VideoSubtitle>Conoce cómo funciona el Test</VideoSubtitle>
           </VideoInfo>
 
           <ActionArrow>
