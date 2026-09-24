@@ -261,7 +261,7 @@ const Carreras = () => {
 
                       {/* Boton descubre mas */}
                       <DescubreMasRow>
-                        <DescubreMasBtn>
+                        <DescubreMasBtn onClick={() => navigate(`/ver-mas-carrera`, { state: { carrera: c } })}>
                           <FontAwesomeIcon icon={faUniversity} /> Descubre mas
                         </DescubreMasBtn>
                       </DescubreMasRow>
@@ -292,7 +292,7 @@ const Carreras = () => {
         </SalaryLinksRow>
       </SalaryFooter>
 
-    </Container>
+    </Container >
   );
 };
 
@@ -629,36 +629,66 @@ const SalarioNota = styled.div`
   }
 `;
 
-const VerUniversidadesRow = styled.div`
-  margin-top: 10px;
+// ── Botón "Descubre más" (Heurísticas de Tognazzini y Nielsen) ─────────────────
+
+const DescubreMasRow = styled.div`
+  margin-top: 14px;
   display: flex;
   justify-content: flex-end;
+  width: 100%;
 `;
 
-const VerUniversidadesBtn = styled.button`
+const DescubreMasBtn = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  border-radius: 50px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  cursor: pointer;
-  border: 1.5px solid ${({ $color }) => $color || 'var(--area1)'};
-  background: ${({ $color }) => $color ? `${$color}22` : 'rgba(79,125,240,0.13)'};
-  color: ${({ $color }) => $color || 'var(--area1)'};
-  box-shadow: ${({ $color }) => $color ? `0 2px 12px ${$color}44` : '0 2px 12px rgba(79,125,240,0.28)'};
-  transition: all 0.22s ease;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-height: 44px; /* Ley de Fitts / Tognazzini: Área táctil accesible */
+  border-radius: 12px;
+  font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
   letter-spacing: 0.3px;
+  cursor: pointer;
 
-  &:hover {
-    background: ${({ $color }) => $color ? `${$color}33` : 'rgba(79,125,240,0.22)'};
-    box-shadow: ${({ $color }) => $color ? `0 4px 20px ${$color}66` : '0 4px 20px rgba(79,125,240,0.45)'};
-    transform: translateY(-2px) scale(1.03);
+  /* Color Sólido Mate (Nielsen #8 - Estética limpia sin neón ni transparencias) */
+  background: ${({ $color }) => $color || '#2563eb'};
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
+  /* Feedback Inmediato de Estado (Nielsen #1 & Tognazzini State Visibility) */
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  outline: none;
+
+  svg {
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
   }
 
+  /* Micro-interacción Sobria al Hover */
+  &:hover {
+    background: ${({ $color }) => ($color ? `${$color}D9` : '#1d4ed8')};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+    svg {
+      transform: translateX(3px);
+    }
+  }
+
+  /* Feedback de Presión / Clic */
   &:active {
-    transform: translateY(0) scale(1);
+    background: ${({ $color }) => ($color ? `${$color}B3` : '#1e40af')};
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Accesibilidad de Teclado (Nielsen #1 & Protecciones Tognazzini) */
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
   }
 `;
 
