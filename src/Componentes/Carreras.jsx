@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import VerMasCarrera from './VerMasCarrera';
 import { collection, onSnapshot } from 'firebase/firestore';
 import db from '../firebaseConfig/firebase';
 import styled, { keyframes } from 'styled-components';
@@ -77,8 +78,22 @@ const Carreras = () => {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
+  // Estados para el panel superpuesto VerMasCarrera (Bottom Sheet)
+  const [selectedCarrera, setSelectedCarrera] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const handleAbrirVerMas = (carrera) => {
+    setSelectedCarrera(carrera);
+    setModalOpen(true);
+  };
+
+  const handleCerrarVerMas = () => {
+    setModalOpen(false);
+    setTimeout(() => setSelectedCarrera(null), 320);
   };
 
   useEffect(() => {
@@ -104,7 +119,15 @@ const Carreras = () => {
               video: data.videoExplicativo,
               fuenteDescripcion: data.fuentePrin,
               salarioAdvertencia: data.salarioAdvertencia,
-              esParaMi: data.esParaMi
+              esParaMi: data.esParaMi,
+              estudio: data.estudio,
+              ramas: data.ramas,
+              trabajo: data.trabajo,
+              puestos: data.puestos,
+              trabajoExtranjero: data.trabajoExtranjero,
+              vidaProfesional: data.vidaProfesional,
+              demanda: data.demanda,
+              afectadaPorIA: data.afectadaPorIA
             };
           });
           carrerasDataMap[collName] = docs;
@@ -261,7 +284,7 @@ const Carreras = () => {
 
                       {/* Boton descubre mas */}
                       <DescubreMasRow>
-                        <DescubreMasBtn onClick={() => navigate(`/ver-mas-carrera`, { state: { carrera: c } })}>
+                        <DescubreMasBtn onClick={() => handleAbrirVerMas(c)}>
                           <FontAwesomeIcon icon={faUniversity} /> Descubre mas
                         </DescubreMasBtn>
                       </DescubreMasRow>
@@ -292,7 +315,24 @@ const Carreras = () => {
         </SalaryLinksRow>
       </SalaryFooter>
 
-    </Container >
+      {/* Componente flotante superpuesto (Bottom Sheet) */}
+      {selectedCarrera && (
+        <VerMasCarrera
+          carrera={selectedCarrera}
+          areaInfo={{
+            label: AREAS.find((a) => a.id.toLowerCase() === (selectedCarrera.areaId || '').toLowerCase())?.label || 'Carrera',
+            color: selectedCarrera.color,
+          }}
+          isOpen={modalOpen}
+          onClose={handleCerrarVerMas}
+          onVerUniversidades={(nombre) => {
+            handleCerrarVerMas();
+            navigate('/universidades', { state: { carrera: nombre } });
+          }}
+        />
+      )}
+
+    </Container>
   );
 };
 
@@ -517,64 +557,6 @@ const WarningBlockText = styled.p`
   line-height: 1.45;
 `;
 
-const VideoLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 6px 14px;
-  border-radius: 50px;
-  font-size: 0.73rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: #ff7e7e;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.12);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  align-self: flex-start;
-
-  &:hover {
-    background: rgba(239, 68, 68, 0.22);
-    border-color: rgba(239, 68, 68, 0.6);
-    color: #ffa1a1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const FuenteLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 5px 12px;
-  border-radius: 50px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-decoration: none;
-  color: #93c5fd;
-  background: rgba(147, 197, 253, 0.1);
-  border: 1px solid rgba(147, 197, 253, 0.25);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  align-self: flex-start;
-
-  &:hover {
-    background: rgba(147, 197, 253, 0.2);
-    border-color: rgba(147, 197, 253, 0.55);
-    color: #bfdbfe;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(147, 197, 253, 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
 
 const SalarioWrapper = styled.div`
   display: flex;
